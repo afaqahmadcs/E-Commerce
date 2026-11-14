@@ -139,7 +139,7 @@ export const LOOKS_DATA: LookOutfit[] = [
         name: "AFAQ Retro Court High",
         category: "Sneakers",
         price: 140,
-        image: "/sneakers/luka5-bone-cement-red.png",
+        image: "/sneakers/luka5-retro-high-bred.png",
         hotspot: { x: 50, y: 94, label: "Retro Court High" },
       },
       {
