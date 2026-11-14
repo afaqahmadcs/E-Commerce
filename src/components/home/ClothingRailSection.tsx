@@ -9,48 +9,14 @@ import { GARMENTS_DATA } from "@/data/garments";
 import { HangingGarment } from "@/types";
 import { GarmentQuickViewModal } from "./GarmentQuickViewModal";
 
-// Expand rail to 16 garments matching the dense archive rack in reference video
-const EXTENDED_RAIL_DATA: HangingGarment[] = [
-  ...GARMENTS_DATA,
-  {
-    ...GARMENTS_DATA[6],
-    id: "g-13",
-    name: "Archival Washed Midnight Hoodie",
-    priceTag: "$199",
-    imageHanging: "/garments/hoodie-side-grey.png",
-    hangerIndex: 13,
-  },
-  {
-    ...GARMENTS_DATA[4],
-    id: "g-14",
-    name: "Pine Green Heavy Fleece Hoodie",
-    priceTag: "$185",
-    imageHanging: "/garments/hoodie-side-green.png",
-    hangerIndex: 14,
-  },
-  {
-    ...GARMENTS_DATA[1],
-    id: "g-15",
-    name: "Heavyweight Boxy Fleece Hoodie",
-    priceTag: "$195",
-    imageHanging: "/garments/hoodie-side-charcoal.png",
-    hangerIndex: 15,
-  },
-  {
-    ...GARMENTS_DATA[10],
-    id: "g-16",
-    name: "AFAQ Emblem Boxy Tee Black",
-    priceTag: "$95",
-    imageHanging: "/garments/tee-side-black.png",
-    hangerIndex: 16,
-  },
-];
+// 22 unique hanging garments matching the dense archive rack in reference video
+const EXTENDED_RAIL_DATA: HangingGarment[] = GARMENTS_DATA;
 
 export function ClothingRailSection() {
   const [activeGarment, setActiveGarment] = useState<HangingGarment>(EXTENDED_RAIL_DATA[6]);
   const [modalGarment, setModalGarment] = useState<HangingGarment | null>(null);
   const [hoveredGarmentId, setHoveredGarmentId] = useState<string | null>(null);
-  const [constraints, setConstraints] = useState({ left: -1400, right: 0 });
+  const [constraints, setConstraints] = useState({ left: -3600, right: 0 });
 
   const railRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -72,8 +38,8 @@ export function ClothingRailSection() {
         const railWidth = railRef.current.scrollWidth;
         const containerWidth = containerRef.current.offsetWidth;
         const calculated = containerWidth - railWidth - 100;
-        // Never lock to 0: fallback to -1400 if measurement not ready
-        const minScroll = calculated < -200 ? calculated : -1400;
+        // Never lock to 0: fallback to -3600 for 22 dense garments
+        const minScroll = calculated < -200 ? calculated : -3600;
         setConstraints({ left: minScroll, right: 0 });
       }
     };
@@ -93,7 +59,7 @@ export function ClothingRailSection() {
     const stepAmount = 320;
     const current = x.get();
     let target = direction === "left" ? current + stepAmount : current - stepAmount;
-    const minLeft = constraints.left < -200 ? constraints.left : -1400;
+    const minLeft = constraints.left < -200 ? constraints.left : -3600;
 
     target = Math.max(minLeft, Math.min(0, target));
     x.set(target);
@@ -107,7 +73,7 @@ export function ClothingRailSection() {
     if (Math.abs(delta) > 1.5) {
       const current = x.get();
       let target = current - delta * 1.5;
-      const minLeft = constraints.left < -200 ? constraints.left : -1400;
+      const minLeft = constraints.left < -200 ? constraints.left : -3600;
       target = Math.max(minLeft, Math.min(0, target));
       x.set(target);
     }
@@ -160,7 +126,7 @@ export function ClothingRailSection() {
           onDragStart={handleDragStart}
           onDragEnd={(_e, info) => {
             const current = x.get();
-            const minLeft = constraints.left < -200 ? constraints.left : -1400;
+            const minLeft = constraints.left < -200 ? constraints.left : -3600;
             const target = Math.max(minLeft, Math.min(0, current + info.offset.x * 0.3));
             x.set(target);
             handleDragEnd();

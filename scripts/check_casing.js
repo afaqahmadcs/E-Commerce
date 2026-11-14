@@ -52,3 +52,4 @@ function checkCasing(dir) {
 
 checkCasing(path.join(process.cwd(), 'src'));
 console.log('Casing check completed.');
+

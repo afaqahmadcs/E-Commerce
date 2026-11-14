@@ -193,7 +193,7 @@ export function TryTheLookHero() {
                   Try the Look.
                 </h1>
                 <p className="text-xs text-brand-muted mt-1 tracking-wide font-sans leading-relaxed">
-                  Six looks, styled head to toe. Swipe, scroll or click to center any piece.
+                  Twelve curated runway looks, styled head to toe. Swipe, scroll or click to center any silhouette.
                 </p>
               </motion.div>
             )}
@@ -274,14 +274,19 @@ export function TryTheLookHero() {
                 blurAmount = 0;
               } else if (absOffset === 2) {
                 scale = 0.78;
-                opacity = 0.45;
+                opacity = 0.50;
                 zIndex = 10;
-                blurAmount = 1.2;
+                blurAmount = 1.0;
+              } else if (absOffset === 3) {
+                scale = 0.68;
+                opacity = 0.25;
+                zIndex = 6;
+                blurAmount = 2.0;
               } else {
-                scale = 0.65;
-                opacity = 0.15;
-                zIndex = 5;
-                blurAmount = 3;
+                scale = 0.60;
+                opacity = 0.08;
+                zIndex = 3;
+                blurAmount = 3.5;
               }
             }
 
