@@ -15,6 +15,8 @@ export function TryTheLookHero() {
   const [addedOutfit, setAddedOutfit] = useState(false);
   const [windowWidth, setWindowWidth] = useState(1200);
   const isDraggingRef = useRef(false);
+  const wheelAccumulatorRef = useRef(0);
+  const wheelTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const shouldReduceMotion = useReducedMotion();
   const { addItem, openDrawer } = useCartStore();
@@ -45,6 +47,31 @@ export function TryTheLookHero() {
     setActiveHotspot(null);
   }, []);
 
+  // Touchpad two-finger swipe & mouse wheel horizontal navigation
+  const handleWheel = useCallback((e: React.WheelEvent) => {
+    // Check horizontal swipe on touchpad (e.deltaX) or shiftKey wheel
+    const isHorizontal = Math.abs(e.deltaX) > Math.abs(e.deltaY);
+    const delta = isHorizontal ? e.deltaX : (e.shiftKey ? e.deltaY : (Math.abs(e.deltaY) > 28 ? e.deltaY : 0));
+
+    if (Math.abs(delta) > 6) {
+      wheelAccumulatorRef.current += delta;
+
+      if (Math.abs(wheelAccumulatorRef.current) > 30) {
+        if (wheelAccumulatorRef.current > 0) {
+          handleNext();
+        } else {
+          handlePrev();
+        }
+        wheelAccumulatorRef.current = 0;
+      }
+    }
+
+    if (wheelTimerRef.current) clearTimeout(wheelTimerRef.current);
+    wheelTimerRef.current = setTimeout(() => {
+      wheelAccumulatorRef.current = 0;
+    }, 160);
+  }, [handleNext, handlePrev]);
+
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -66,26 +93,22 @@ export function TryTheLookHero() {
   };
 
   const handleDragEnd = (_e: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-    const threshold = 35;
-    const velocityThreshold = 220;
-
-    if (info.offset.x < -threshold || info.velocity.x < -velocityThreshold) {
+    const threshold = 20;
+    if (info.offset.x < -threshold || info.velocity.x < -120) {
       handleNext();
-    } else if (info.offset.x > threshold || info.velocity.x > velocityThreshold) {
+    } else if (info.offset.x > threshold || info.velocity.x > 120) {
       handlePrev();
     }
 
-    // Keep dragging flag briefly to avoid accidental click trigger
     setTimeout(() => {
       isDraggingRef.current = false;
-    }, 120);
+    }, 80);
   };
 
   const handleModelClick = (index: number) => {
     if (isDraggingRef.current) return;
 
     if (index === activeLookIndex) {
-      // Toggle isolated view when center model is clicked
       setIsIsolated((prev) => !prev);
     } else {
       setActiveLookIndex(index);
@@ -116,13 +139,16 @@ export function TryTheLookHero() {
   };
 
   // Viewport calibrated horizontal spacing
-  const modelSpacing = windowWidth < 640 ? 150 : windowWidth < 1024 ? 190 : 235;
+  const modelSpacing = windowWidth < 640 ? 150 : windowWidth < 1024 ? 190 : 230;
 
   return (
-    <section className="relative w-full min-h-[92vh] bg-[#F8F7F4] flex flex-col justify-between overflow-hidden border-b border-brand-border select-none">
-      {/* Top Section Header */}
-      <div className="pt-8 sm:pt-10 px-5 sm:px-10 lg:px-12 max-w-7xl mx-auto w-full z-20 flex justify-between items-start">
-        <div className="max-w-[280px] sm:max-w-sm">
+    <section 
+      onWheel={handleWheel}
+      className="relative w-full h-[calc(100vh-68px)] min-h-[580px] max-h-[820px] bg-[#F8F7F4] flex flex-col justify-between overflow-hidden border-b border-brand-border select-none"
+    >
+      {/* Top Section Header (Matches Reference 00.5s) */}
+      <div className="pt-4 sm:pt-6 px-5 sm:px-10 lg:px-12 max-w-7xl mx-auto w-full z-20 flex justify-between items-start">
+        <div className="max-w-[320px] sm:max-w-md">
           <AnimatePresence mode="wait">
             {isIsolated ? (
               <motion.div
@@ -130,16 +156,22 @@ export function TryTheLookHero() {
                 initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -8 }}
-                transition={{ duration: shouldReduceMotion ? 0.05 : 0.3 }}
+                transition={{ duration: 0.25 }}
               >
-                <span className="text-[10px] sm:text-[11px] font-mono tracking-luxury uppercase text-brand-muted block">
-                  LOOK {currentLook.lookNumber}
-                </span>
-                <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl text-brand-text font-normal tracking-tight">
+                <div className="flex items-center space-x-2">
+                  <span className="text-[10px] font-mono tracking-luxury uppercase text-brand-accent font-semibold block">
+                    ISOLATED INSPECTION
+                  </span>
+                  <span className="text-neutral-300">•</span>
+                  <span className="text-[10px] font-mono tracking-wider uppercase text-brand-muted">
+                    LOOK {currentLook.lookNumber}
+                  </span>
+                </div>
+                <h1 className="font-serif text-2xl sm:text-3xl text-brand-text font-normal tracking-tight mt-0.5">
                   {currentLook.title}
                 </h1>
-                <p className="text-xs sm:text-sm text-brand-muted mt-1 tracking-wide font-sans leading-relaxed">
-                  {currentLook.modelHeight} • {currentLook.modelWearing}
+                <p className="text-[11px] text-brand-muted mt-1 tracking-wide font-sans leading-relaxed hidden sm:block">
+                  Model stands {currentLook.modelHeight}. Wearing {currentLook.modelWearing}. Tap hotspot pins to inspect pieces.
                 </p>
               </motion.div>
             ) : (
@@ -148,36 +180,36 @@ export function TryTheLookHero() {
                 initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -8 }}
-                transition={{ duration: shouldReduceMotion ? 0.05 : 0.3 }}
+                transition={{ duration: 0.25 }}
               >
-                <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl text-brand-text font-normal tracking-tight">
+                <h1 className="font-serif text-3xl sm:text-4xl text-brand-text font-normal tracking-tight">
                   Try the Look.
                 </h1>
-                <p className="text-xs sm:text-sm text-brand-muted mt-2 tracking-wide font-sans leading-relaxed">
-                  Six looks, styled head to toe. Tap a pin to see the piece.
+                <p className="text-xs text-brand-muted mt-1 tracking-wide font-sans leading-relaxed">
+                  Six looks, styled head to toe. Swipe, scroll or click to center any piece.
                 </p>
               </motion.div>
             )}
           </AnimatePresence>
         </div>
 
-        {/* Action Controls Top Right */}
-        <div className="flex items-center space-x-3">
+        {/* View Mode Toggle Button */}
+        <div>
           {isIsolated ? (
             <button
               onClick={() => setIsIsolated(false)}
-              className="flex items-center space-x-2 text-xs uppercase tracking-luxury text-brand-text hover:text-brand-accent px-4 py-2 bg-white/90 rounded-full border border-brand-border shadow-sm backdrop-blur transition-all"
+              className="flex items-center space-x-2 text-xs uppercase tracking-luxury text-brand-text hover:text-brand-accent px-4 py-2 bg-white/80 hover:bg-white rounded-full border border-brand-border shadow-sm backdrop-blur transition-all"
               aria-label="Return to full lineup"
             >
-              <X className="w-4 h-4" />
-              <span className="font-medium">Return to Lineup</span>
+              <X className="w-3.5 h-3.5" />
+              <span className="font-medium text-[11px]">Return to Lineup</span>
             </button>
           ) : (
             <button
               onClick={() => setIsIsolated(true)}
               className="hidden sm:flex items-center space-x-2 text-xs uppercase tracking-luxury text-brand-text hover:text-brand-accent px-4 py-2 bg-white/70 hover:bg-white rounded-full border border-brand-border/80 shadow-sm backdrop-blur transition-all"
             >
-              <span>Explore Outfit</span>
+              <span className="text-[11px]">Explore Outfit</span>
               <ChevronRight className="w-3.5 h-3.5" />
             </button>
           )}
@@ -185,16 +217,16 @@ export function TryTheLookHero() {
       </div>
 
       {/* Main Interactive Stage with Runway & Docked Right Panel */}
-      <div className="relative flex-1 w-full max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between px-4 sm:px-8 my-2">
+      <div className="relative flex-1 w-full max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between px-4 sm:px-8 my-1">
         {/* Left/Center: Horizontal Model Runway */}
         <motion.div
           drag="x"
           dragConstraints={{ left: 0, right: 0 }}
-          dragElastic={0.16}
+          dragElastic={0.12}
           onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
           style={{ touchAction: "pan-y" }}
-          className="relative flex-1 w-full h-[500px] sm:h-[580px] md:h-[620px] flex items-end justify-center cursor-grab active:cursor-grabbing overflow-visible touch-pan-y"
+          className="relative flex-1 w-full h-[380px] sm:h-[460px] md:h-[500px] flex items-end justify-center cursor-grab active:cursor-grabbing overflow-visible touch-pan-y"
         >
           {LOOKS_DATA.map((look, index) => {
             const offset = index - activeLookIndex;
@@ -203,40 +235,40 @@ export function TryTheLookHero() {
 
             const targetX = offset * modelSpacing;
 
-            // Scale calculations: Center is 1.14x, +/-1 is 0.88x, +/-2 is 0.72x
-            let scale = 1.14;
+            // Scale calculations: Center is 1.10x, +/-1 is 0.88x, +/-2 is 0.72x
+            let scale = 1.10;
             let opacity = 1;
             let zIndex = 30;
             let blurAmount = 0;
 
             if (isIsolated) {
               if (isCenter) {
-                scale = 1.18;
+                scale = 1.16;
                 opacity = 1;
                 zIndex = 40;
                 blurAmount = 0;
               } else {
-                scale = 0.82;
+                scale = 0.80;
                 opacity = 0;
                 zIndex = 0;
                 blurAmount = 4;
               }
             } else {
               if (absOffset === 0) {
-                scale = 1.14;
+                scale = 1.10;
                 opacity = 1;
                 zIndex = 30;
                 blurAmount = 0;
               } else if (absOffset === 1) {
                 scale = 0.88;
-                opacity = 0.82;
+                opacity = 0.85;
                 zIndex = 20;
                 blurAmount = 0;
               } else if (absOffset === 2) {
                 scale = 0.72;
                 opacity = 0.45;
                 zIndex = 10;
-                blurAmount = 1.5;
+                blurAmount = 1.2;
               } else {
                 scale = 0.60;
                 opacity = 0.15;
@@ -264,14 +296,14 @@ export function TryTheLookHero() {
                   willChange: "transform, opacity",
                 }}
                 onClick={() => handleModelClick(index)}
-                className="absolute bottom-6 flex flex-col items-center justify-end group pointer-events-auto"
+                className="absolute bottom-2 flex flex-col items-center justify-end group pointer-events-auto cursor-pointer"
               >
-                {/* Full-Body Model Figure */}
-                <div className="relative w-52 sm:w-64 md:w-72 h-[450px] sm:h-[520px] md:h-[570px] flex items-end justify-center">
+                {/* Full-Body Model Figure with shoes on the floor */}
+                <div className="relative w-44 sm:w-56 md:w-64 h-[350px] sm:h-[430px] md:h-[470px] flex items-end justify-center">
                   {/* Organic Ground Contact Shadow */}
                   <div
-                    className={`absolute -bottom-2 left-1/2 -translate-x-1/2 w-40 sm:w-52 h-6 rounded-full blur-[9px] pointer-events-none transform scale-y-45 transition-all duration-700 ${
-                      isCenter ? "bg-black/35 blur-[10px]" : "bg-black/15 blur-[6px]"
+                    className={`absolute bottom-0 left-1/2 -translate-x-1/2 w-32 sm:w-44 h-4 rounded-full blur-[8px] pointer-events-none transform scale-y-45 transition-all duration-700 ${
+                      isCenter ? "bg-black/35 blur-[9px]" : "bg-black/15 blur-[5px]"
                     }`}
                   />
 
@@ -284,7 +316,7 @@ export function TryTheLookHero() {
                       height={1000}
                       priority={isCenter || absOffset === 1}
                       className="w-auto h-full object-contain object-bottom drop-shadow-[0_4px_16px_rgba(0,0,0,0.06)]"
-                      sizes="(max-width: 640px) 240px, (max-width: 1024px) 300px, 380px"
+                      sizes="(max-width: 640px) 190px, (max-width: 1024px) 250px, 340px"
                     />
                   </div>
 
@@ -294,15 +326,15 @@ export function TryTheLookHero() {
                       initial={{ scale: 0.8, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
                       transition={{ delay: 0.15, duration: 0.3 }}
-                      className="absolute top-[38%] -right-1 sm:right-2 z-40 pointer-events-auto cursor-pointer"
+                      className="absolute top-[36%] -right-1 sm:right-2 z-40 pointer-events-auto cursor-pointer"
                       onClick={(e) => {
                         e.stopPropagation();
                         setIsIsolated(true);
                       }}
                     >
-                      <span className="relative flex h-10 w-10 items-center justify-center group/btn">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-accent opacity-40" />
-                        <span className="relative inline-flex rounded-full h-9 w-9 bg-white/95 shadow-luxury backdrop-blur-md border border-neutral-300 items-center justify-center text-[10px] font-sans font-bold tracking-widest text-brand-text group-hover/btn:scale-105 transition-transform">
+                      <span className="relative flex h-9 w-9 items-center justify-center group/btn">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-accent opacity-35" />
+                        <span className="relative inline-flex rounded-full h-8 w-8 bg-white/95 shadow-luxury backdrop-blur-md border border-neutral-300 items-center justify-center text-[9px] font-sans font-bold tracking-widest text-brand-text group-hover/btn:scale-105 transition-transform">
                           VIEW
                         </span>
                       </span>
@@ -326,9 +358,9 @@ export function TryTheLookHero() {
                             className="group/pin relative flex items-center justify-center focus:outline-none p-2"
                             aria-label={`View ${item.name}`}
                           >
-                            <span className="animate-ping absolute inline-flex h-6 w-6 rounded-full bg-brand-accent/50 opacity-60" />
+                            <span className="animate-ping absolute inline-flex h-5 w-5 rounded-full bg-brand-accent/50 opacity-60" />
                             <span
-                              className={`relative inline-flex rounded-full h-6 w-6 shadow-luxury border items-center justify-center text-[9px] font-bold transition-all ${
+                              className={`relative inline-flex rounded-full h-5 w-5 shadow-luxury border items-center justify-center text-[9px] font-bold transition-all ${
                                 activeHotspot === item.id
                                   ? "bg-brand-accent text-white border-brand-accent scale-110"
                                   : "bg-white text-brand-text border-neutral-300 hover:scale-110"
@@ -338,7 +370,7 @@ export function TryTheLookHero() {
                             </span>
 
                             {/* Floating Pin Tooltip */}
-                            <div className="absolute left-9 bg-brand-text/95 backdrop-blur-md text-white text-[11px] font-sans px-3 py-1.5 rounded shadow-xl whitespace-nowrap opacity-0 group-hover/pin:opacity-100 transition-opacity pointer-events-none z-50">
+                            <div className="absolute left-8 bg-brand-text/95 backdrop-blur-md text-white text-[11px] font-sans px-3 py-1.5 rounded shadow-xl whitespace-nowrap opacity-0 group-hover/pin:opacity-100 transition-opacity pointer-events-none z-50">
                               <p className="font-medium">{item.name}</p>
                               <p className="text-brand-bg/80 font-mono text-[10px]">${item.price}</p>
                             </div>
@@ -349,18 +381,15 @@ export function TryTheLookHero() {
                   )}
                 </div>
 
-                {/* Bottom Model Label in Lineup Mode */}
+                {/* Bottom Model Indicator Dot & Number */}
                 {!isIsolated && (
-                  <div className="mt-2 text-center pointer-events-none transition-opacity duration-300">
-                    <span className="text-[10px] tracking-widest uppercase font-mono text-brand-muted block">
-                      LOOK {look.lookNumber}
-                    </span>
+                  <div className="mt-1 text-center pointer-events-none transition-opacity duration-300">
                     <span
-                      className={`text-xs font-serif transition-colors ${
-                        isCenter ? "text-brand-text font-medium" : "text-brand-muted/70"
+                      className={`text-[10px] tracking-wider uppercase font-mono transition-colors ${
+                        isCenter ? "text-brand-text font-bold" : "text-brand-muted/60"
                       }`}
                     >
-                      {look.title}
+                      LOOK {look.lookNumber}
                     </span>
                   </div>
                 )}
@@ -369,36 +398,36 @@ export function TryTheLookHero() {
           })}
         </motion.div>
 
-        {/* Right Docked Panel: "IN THIS LOOK" (Matching Reference Video) */}
+        {/* Right Docked Panel: "IN THIS LOOK" (Matching Reference Video Image 6) */}
         <motion.div
           layout
-          className="w-full lg:w-[340px] xl:w-[360px] bg-white/80 backdrop-blur-md border border-brand-border/80 rounded-2xl p-5 sm:p-6 shadow-sm mt-4 lg:mt-0 space-y-5 z-20 shrink-0"
+          className="w-full lg:w-[320px] xl:w-[340px] bg-white/90 backdrop-blur-md border border-brand-border/80 rounded-2xl p-4 sm:p-5 shadow-sm mt-3 lg:mt-0 space-y-4 z-20 shrink-0"
         >
           {/* Header */}
-          <div className="flex items-center justify-between pb-3.5 border-b border-brand-border/70">
+          <div className="flex items-center justify-between pb-2.5 border-b border-brand-border/70">
             <div>
               <span className="text-[10px] font-mono tracking-widest uppercase text-brand-accent font-semibold block">
                 LOOK {currentLook.lookNumber}
               </span>
-              <h3 className="font-serif text-lg font-medium text-brand-text">
+              <h3 className="font-serif text-base sm:text-lg font-medium text-brand-text">
                 {currentLook.title}
               </h3>
             </div>
-            <span className="text-[11px] font-sans uppercase tracking-wider text-brand-muted">
+            <span className="text-[10px] font-sans uppercase tracking-wider text-brand-muted">
               In this look ({currentLook.items.length})
             </span>
           </div>
 
           {/* Outfit Items List */}
-          <div className="space-y-3">
+          <div className="space-y-2">
             <AnimatePresence mode="wait">
               <motion.div
                 key={currentLook.id}
-                initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 8 }}
+                initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -8 }}
-                transition={{ duration: shouldReduceMotion ? 0.05 : 0.28 }}
-                className="space-y-2.5"
+                exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -6 }}
+                transition={{ duration: shouldReduceMotion ? 0.05 : 0.25 }}
+                className="space-y-2"
               >
                 {currentLook.items.map((item) => {
                   const isHighlighted = activeHotspot === item.id;
@@ -407,19 +436,19 @@ export function TryTheLookHero() {
                       key={item.id}
                       onMouseEnter={() => setActiveHotspot(item.id)}
                       onMouseLeave={() => setActiveHotspot(null)}
-                      className={`flex items-center space-x-3 p-2.5 rounded-xl border transition-all group ${
+                      className={`flex items-center space-x-3 p-2 rounded-xl border transition-all group ${
                         isHighlighted
                           ? "bg-brand-accent/5 border-brand-accent/40 shadow-sm"
-                          : "bg-white/80 border-brand-border/60 hover:border-brand-border hover:bg-white"
+                          : "bg-[#FAFAF8] border-brand-border/60 hover:border-brand-border hover:bg-white"
                       }`}
                     >
-                      {/* Product Thumbnail */}
-                      <div className="relative w-12 h-14 bg-brand-card rounded-lg overflow-hidden shrink-0 border border-brand-border/40">
+                      {/* Product Thumbnail (Clean cutout on card) */}
+                      <div className="relative w-12 h-12 bg-white rounded-lg overflow-hidden shrink-0 border border-brand-border/40 p-1 flex items-center justify-center">
                         <Image
                           src={item.image}
                           alt={item.name}
                           fill
-                          className="object-cover group-hover:scale-105 transition-transform duration-300"
+                          className="object-contain p-1 group-hover:scale-105 transition-transform duration-300"
                           sizes="48px"
                         />
                       </div>
@@ -446,7 +475,7 @@ export function TryTheLookHero() {
                         className="p-1.5 text-brand-muted hover:text-brand-text transition-colors"
                         aria-label={`View ${item.name}`}
                       >
-                        <Eye className="w-4 h-4" />
+                        <Eye className="w-3.5 h-3.5" />
                       </Link>
                     </div>
                   );
@@ -456,51 +485,41 @@ export function TryTheLookHero() {
           </div>
 
           {/* Pricing Bundle & Action Button */}
-          <div className="pt-3 border-t border-brand-border/70 space-y-3">
+          <div className="pt-2.5 border-t border-brand-border/70 space-y-2.5">
             <div className="flex items-center justify-between text-xs">
-              <span className="text-brand-muted font-sans">Complete Outfit (3 pieces)</span>
+              <span className="text-brand-muted font-sans text-[11px]">Complete the look</span>
               <div className="text-right">
-                <span className="text-brand-muted line-through mr-2 font-mono text-[11px]">
+                <span className="text-brand-muted line-through mr-1.5 font-mono text-[10px]">
                   ${originalTotal.toFixed(2)}
                 </span>
-                <span className="font-mono font-bold text-sm text-brand-text">
+                <span className="font-mono font-bold text-xs sm:text-sm text-brand-text">
                   ${discountedTotal.toFixed(2)}
                 </span>
               </div>
             </div>
 
-            <div className="flex items-center space-x-1.5 text-[11px] text-brand-accent font-medium">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Bundle all 3 and save {currentLook.discountPercentage}%</span>
+            <div className="flex items-center space-x-1.5 text-[10px] text-brand-accent font-medium">
+              <Sparkles className="w-3 h-3" />
+              <span>Bundle of 3 items saves {currentLook.discountPercentage}%</span>
             </div>
-
-            {/* View Outfit Action Button */}
-            {!isIsolated && (
-              <button
-                onClick={() => setIsIsolated(true)}
-                className="w-full py-2.5 px-4 rounded-xl text-xs uppercase tracking-luxury font-medium border border-brand-border hover:border-brand-text bg-white/90 text-brand-text hover:bg-white transition-all shadow-sm"
-              >
-                View Outfit Details
-              </button>
-            )}
 
             {/* Add full look to bag CTA */}
             <button
               onClick={handleAddFullLook}
-              className={`w-full py-3.5 px-4 rounded-xl text-xs uppercase tracking-luxury font-medium transition-all flex items-center justify-center space-x-2 shadow-sm ${
+              className={`w-full py-3 px-4 rounded-xl text-xs uppercase tracking-luxury font-medium transition-all flex items-center justify-center space-x-2 shadow-sm ${
                 addedOutfit
                   ? "bg-brand-accent text-white shadow-brand-accent/20"
-                  : "bg-brand-text hover:bg-brand-dark text-white shadow-md hover:shadow-lg"
+                  : "bg-brand-text hover:bg-black text-white shadow-md hover:shadow-lg"
               }`}
             >
               {addedOutfit ? (
                 <>
-                  <Check className="w-4 h-4" />
+                  <Check className="w-3.5 h-3.5" />
                   <span>Full Look Added to Bag</span>
                 </>
               ) : (
                 <>
-                  <ShoppingBag className="w-4 h-4" />
+                  <ShoppingBag className="w-3.5 h-3.5" />
                   <span>Add full look to bag →</span>
                 </>
               )}
@@ -509,20 +528,20 @@ export function TryTheLookHero() {
         </motion.div>
       </div>
 
-      {/* Bottom Scrubber Timeline Navigation (Matching Reference Video) */}
-      <div className="py-4 sm:py-5 px-5 sm:px-10 lg:px-12 max-w-7xl mx-auto w-full border-t border-brand-border/60 flex items-center justify-between z-20">
+      {/* Bottom Scrubber Timeline Navigation (Matching Reference Video Image 6) */}
+      <div className="py-3 px-5 sm:px-10 lg:px-12 max-w-7xl mx-auto w-full border-t border-brand-border/60 flex items-center justify-between z-20">
         {/* Prev Arrow */}
         <button
           onClick={handlePrev}
-          className="p-2 text-brand-text hover:text-brand-accent transition-colors flex items-center space-x-1.5 font-mono text-xs uppercase tracking-wider group"
+          className="p-1.5 text-brand-text hover:text-brand-accent transition-colors flex items-center space-x-1 font-mono text-xs uppercase tracking-wider group"
           aria-label="Previous look"
         >
-          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
+          <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
           <span className="hidden sm:inline">Prev</span>
         </button>
 
         {/* Timeline Scrubber Points */}
-        <div className="flex items-center space-x-2.5 sm:space-x-6 overflow-x-auto no-scrollbar py-1">
+        <div className="flex items-center space-x-3 sm:space-x-6 overflow-x-auto no-scrollbar py-0.5">
           {LOOKS_DATA.map((look, index) => {
             const isActive = index === activeLookIndex;
             return (
@@ -533,7 +552,7 @@ export function TryTheLookHero() {
                   setAddedOutfit(false);
                   setActiveHotspot(null);
                 }}
-                className={`relative flex items-center space-x-1.5 text-xs font-mono transition-all py-1.5 px-2 rounded-md ${
+                className={`relative flex items-center space-x-1.5 text-xs font-mono transition-all py-1 px-2 rounded-md ${
                   isActive
                     ? "text-brand-text font-bold"
                     : "text-brand-muted hover:text-brand-text"
@@ -550,7 +569,7 @@ export function TryTheLookHero() {
                   <motion.div
                     layoutId="activeScrubberIndicator"
                     className="absolute inset-x-0 -bottom-1 h-0.5 bg-brand-text"
-                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    transition={{ duration: 0.3, ease: "easeOut" }}
                   />
                 )}
               </button>
@@ -561,11 +580,11 @@ export function TryTheLookHero() {
         {/* Next Arrow */}
         <button
           onClick={handleNext}
-          className="p-2 text-brand-text hover:text-brand-accent transition-colors flex items-center space-x-1.5 font-mono text-xs uppercase tracking-wider group"
+          className="p-1.5 text-brand-text hover:text-brand-accent transition-colors flex items-center space-x-1 font-mono text-xs uppercase tracking-wider group"
           aria-label="Next look"
         >
           <span className="hidden sm:inline">Next</span>
-          <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+          <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
         </button>
       </div>
     </section>
