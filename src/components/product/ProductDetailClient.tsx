@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Product } from "@/types";
+import { PRODUCTS_DATA } from "@/data/products";
 import { useCartStore } from "@/store/useCartStore";
 
 interface ProductDetailClientProps {
@@ -45,10 +46,27 @@ export function ProductDetailClient({
     product.availableColors[0]?.name || "Standard"
   );
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
-  const quantity = 1;
+  const [quantity, setQuantity] = useState(1);
+  const [recentlyViewed, setRecentlyViewed] = useState<Product[]>([]);
   const [isAdded, setIsAdded] = useState(false);
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"details" | "materials" | "shipping">("details");
+
+  // Track and load recently viewed products
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("afaq_recently_viewed");
+      const ids: string[] = stored ? JSON.parse(stored) : [];
+      const found = ids
+        .filter((id) => id !== product.id)
+        .map((id) => PRODUCTS_DATA.find((p) => p.id === id))
+        .filter(Boolean) as Product[];
+      setRecentlyViewed(found.slice(0, 4));
+
+      const updated = [product.id, ...ids.filter((id) => id !== product.id)].slice(0, 8);
+      localStorage.setItem("afaq_recently_viewed", JSON.stringify(updated));
+    } catch {}
+  }, [product.id]);
 
   // Hoodie specific states
   const [hoodieView, setHoodieView] = useState<"front" | "back">("front");
@@ -367,8 +385,36 @@ export function ProductDetailClient({
                 )}
               </div>
 
+              {/* Quantity Selector */}
+              <div className="flex items-center justify-between pt-2 border-t border-brand-border/60">
+                <span className="font-mono text-[11px] uppercase tracking-wider text-brand-text font-semibold">
+                  Quantity
+                </span>
+                <div className="flex items-center space-x-3 border border-brand-border bg-white rounded-lg px-2.5 py-1 shadow-sm">
+                  <button
+                    onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                    disabled={quantity <= 1}
+                    className="w-5 h-5 flex items-center justify-center text-brand-text hover:text-brand-accent disabled:opacity-30 font-mono text-sm font-bold"
+                    aria-label="Decrease quantity"
+                  >
+                    -
+                  </button>
+                  <span className="w-6 text-center font-mono text-xs font-semibold text-brand-text">
+                    {quantity}
+                  </span>
+                  <button
+                    onClick={() => setQuantity((q) => Math.min(currentStock, q + 1))}
+                    disabled={quantity >= currentStock}
+                    className="w-5 h-5 flex items-center justify-center text-brand-text hover:text-brand-accent disabled:opacity-30 font-mono text-sm font-bold"
+                    aria-label="Increase quantity"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+
               {/* Add to Bag CTA Button (Tactile Feedback & Drawer Open) */}
-              <div className="space-y-3 pt-3 border-t border-brand-border/70">
+              <div className="space-y-3 pt-1">
                 <button
                   disabled={!selectedSize}
                   onClick={handleAddToCart}
@@ -684,8 +730,36 @@ export function ProductDetailClient({
                 )}
               </div>
 
+              {/* Quantity Selector */}
+              <div className="flex items-center justify-between pt-2 border-t border-brand-border/60">
+                <span className="font-mono text-[11px] uppercase tracking-wider text-brand-text font-semibold">
+                  Quantity
+                </span>
+                <div className="flex items-center space-x-3 border border-brand-border bg-white rounded-lg px-2.5 py-1 shadow-sm">
+                  <button
+                    onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                    disabled={quantity <= 1}
+                    className="w-5 h-5 flex items-center justify-center text-brand-text hover:text-brand-accent disabled:opacity-30 font-mono text-sm font-bold"
+                    aria-label="Decrease quantity"
+                  >
+                    -
+                  </button>
+                  <span className="w-6 text-center font-mono text-xs font-semibold text-brand-text">
+                    {quantity}
+                  </span>
+                  <button
+                    onClick={() => setQuantity((q) => Math.min(currentStock, q + 1))}
+                    disabled={quantity >= currentStock}
+                    className="w-5 h-5 flex items-center justify-center text-brand-text hover:text-brand-accent disabled:opacity-30 font-mono text-sm font-bold"
+                    aria-label="Increase quantity"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+
               {/* Orange-Accented Purchase Button State Machine (Reference 13.5s -> 14.5s -> 16.0s) */}
-              <div className="space-y-3 pt-3 border-t border-brand-border/70">
+              <div className="space-y-3 pt-1">
                 <button
                   disabled={!selectedSize || isOutOfStock}
                   onClick={handleAddToCart}
@@ -1051,6 +1125,49 @@ export function ProductDetailClient({
                   </h4>
                   <p className="font-mono text-xs font-semibold text-brand-text mt-1">
                     ${rel.basePrice.toFixed(2)}
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Recently Viewed Silhouettes */}
+      {recentlyViewed.length > 0 && (
+        <div className="max-w-7xl mx-auto px-6 sm:px-12 mt-16 pt-12 border-t border-brand-border">
+          <span className="text-[10px] font-mono tracking-widest uppercase text-brand-accent font-semibold block">
+            RECENTLY EXPLORED
+          </span>
+          <h2 className="font-serif text-2xl sm:text-3xl text-brand-text font-normal tracking-tight mt-1 mb-8">
+            RECENTLY VIEWED PIECES
+          </h2>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {recentlyViewed.map((item) => (
+              <Link
+                key={item.id}
+                href={`/products/${item.slug}`}
+                className="group flex flex-col"
+              >
+                <div className="relative aspect-[3/4] w-full bg-[#F0EFEB] rounded-xl overflow-hidden border border-brand-border/60">
+                  <Image
+                    src={item.primaryImage}
+                    alt={item.name}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-700"
+                    sizes="25vw"
+                  />
+                </div>
+                <div className="mt-3">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-brand-muted block">
+                    {item.category}
+                  </span>
+                  <h4 className="font-serif text-sm text-brand-text group-hover:text-brand-accent transition-colors mt-0.5 line-clamp-1">
+                    {item.name}
+                  </h4>
+                  <p className="font-mono text-xs font-semibold text-brand-text mt-1">
+                    ${item.basePrice.toFixed(2)}
                   </p>
                 </div>
               </Link>
