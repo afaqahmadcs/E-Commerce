@@ -29,3 +29,4 @@ const puppeteer = require("puppeteer-core");
   photos.forEach((p, i) => console.log(`${i + 1}. [${p.alt}] ${p.src}`));
   await browser.close();
 })();
+
