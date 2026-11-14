@@ -20,8 +20,10 @@
   <a href="#-signature-experiences-from-reference-video">Signature Experiences</a> •
   <a href="#-phase-1--try-the-look-interactive-runway-verified">Phase 1 Runway</a> •
   <a href="#-phase-2--animated-hanging-clothing-rail-verified">Phase 2 Clothing Rail</a> •
+  <a href="#-phase-3--premium-hoodie--sneaker-product-presentation-verified">Phase 3 Details</a> •
+  <a href="#-phase-4--full-e-commerce-engine--pakistani-payments-verified">Phase 4 Full E-Commerce</a> •
   <a href="#-git-branch-architecture--contributions">Git Workflow</a> •
-  <a href="#-full-site-architecture-18-routes">All 18 Routes</a> •
+  <a href="#-full-site-architecture-all-21-routes">All 21 Routes</a> •
   <a href="#-getting-started">Quick Start</a> •
   <a href="#-author">Author</a>
 </p>
@@ -34,19 +36,19 @@
 
 **AFAQ SUPPLY** is a luxury digital flagship and streetwear e-commerce platform built to recreate the visual language, editorial typography, spatial physics, and fluid product presentation of premier international fashion houses.
 
-Inspired directly by the high-end runway and interactive retail experience recorded in `reference/reference-video.mp4`, every micro-interaction—from model isolation zooms to suspended clothing rail physics and 3D perspective footwear trajectories—was engineered with commercial-grade scalability and sub-second performance.
+Inspired directly by the high-end runway and interactive retail experience recorded in `reference/reference-video.mp4`, every micro-interaction—from model isolation zooms to suspended clothing rail physics, 3D perspective footwear trajectories, and multi-gateway Pakistani & international payment flows—was engineered with commercial-grade scalability and sub-second performance.
 
 ```
-┌────────────────────────────────────────────────────────────────────────┐
-│  AFAQ SUPPLY FLAGSHIP EXPERIENCE                                       │
-│  "THE ART OF EVERYDAY STYLE"                                           │
-│                                                                        │
-│  [PHASE 1: RUNWAY] ────► [PHASE 2: CLOTHING RAIL] ────► [PHASE 3: SNEAKER]
-│         │                         │                             │      │
-│         ▼                         ▼                             ▼      │
-│  Outfit Bundle Explorer    Suspended Hangers & Cable     Ascending Wave│
-│  (Framer 700ms Spring)     (Quick-View & Inertia Drag)   (Matrix Size) │
-└────────────────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│  AFAQ SUPPLY FLAGSHIP EXPERIENCE                                                      │
+│  "THE ART OF EVERYDAY STYLE"                                                          │
+│                                                                                       │
+│  [PHASE 1: RUNWAY] ──► [PHASE 2: RAIL] ──► [PHASE 3: SNEAKER] ──► [PHASE 4: ENGINE]    │
+│         │                      │                   │                     │            │
+│         ▼                      ▼                   ▼                     ▼            │
+│  Outfit Bundle Explorer  Suspended Cable     Ascending Wave 3D     Full E-Commerce    │
+│  (Framer 700ms Spring)   (Wood Hangers/Tags) (Matrix Sizes & Lens) (Orders, COD & RLS)│
+└────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -97,20 +99,11 @@ Phase 1 recreates the initial fashion runway sequence from the reference video w
 
 Phase 2 replaces conventional e-commerce card grids with an architectural suspended clothing rail:
 
-### Key Technical Achievements:
 1. **Precision Steel Tension Wire:** A sub-pixel 2.5px gradient cable running across `#F8F7F4` with anchoring hardware fixtures.
 2. **Realistic Hangers & Dangling Tags:** Custom inline SVG dark beechwood hangers with metal loop hooks and dangling miniature price tickets.
 3. **12 Transparent Isolated Garments:** 700px studio cutouts generated with lightweight local AI background removal (`u2netp`) and color grading.
 4. **Spring Physics & Pendulum Sway:** Hovering lifts the garment $-6\text{px}$ with a $\pm 1.4^\circ$ alternating pendulum tilt.
 5. **Suspended Quick-View Modal:** Isolates the garment suspended from a cord with Front/Back angle toggles, size pills (`S`, `M`, `L`, `XL`), and direct dispatch to the cart drawer.
-
-```
-reference_frames/
-├── verification_phase2_01_rail_overview.png       # Tension cable, hangers, dangling tags, cutouts
-├── verification_phase2_02_rail_scrolled.png       # Scrolled position testing inertia glide
-├── verification_phase2_03_quick_view_modal.png    # Suspended modal with Front/Back toggle & sizes
-└── verification_phase2_04_cart_drawer.png         # Added to cart drawer with free shipping meter
-```
 
 ---
 
@@ -136,18 +129,52 @@ Phase 3 implements the two core product presentation and purchasing experiences 
    - *Disabled State:* Greyed-out `"Select a size"` until an EU shoe size is chosen.
    - *Active State:* Solid black `"Add to bag"`.
    - *Purchase State:* Transitions to signature restrained burnt orange (`#C66B39`) with `"Added to bag"` and reveals `"View bag →"`.
-   - Automatically slides open the global cart drawer.
+
+---
+
+## ✦ Phase 4 — Full E-Commerce Engine & Pakistani Payments [VERIFIED]
+
+Phase 4 completes the commercial and administrative infrastructure:
+
+### 1. Customer Shopping & Authentication Lifecycle (`/account`, `/account/orders`)
+- **Interactive Authentication Portal:** 3-mode switcher between **Sign In**, **Create Patron Account**, and **Password Recovery** with Supabase Auth & atomic local session fallback.
+- **Client Profile & Saved Addresses:** Patron profile management and multi-address destination management with default selector.
+- **Real-Time Order History:** Displays dispatches with live fulfillment status (`Confirmed` $\rightarrow$ `Atelier Assembly` $\rightarrow$ `In Transit` $\rightarrow$ `Delivered`), item images, colorways, sizes, courier tracking, and totals.
+
+### 2. Server-Side Security & Order Validation (`/api/orders`)
+- **Authoritative Catalog Price Validation:** Compares incoming cart items against server-authoritative `PRODUCTS_DATA`. Any tampered price is rejected with HTTP 400.
+- **Duplicate Order Prevention (Idempotency):** 15-second hash cache prevents accidental double-charging.
+- **Order Number Generation:** Production format `AFQ-YYYYMMDD-XXXX` (e.g. `AFQ-20261114-8192`).
+- **PostgreSQL Row Level Security (RLS):** All 19 database tables protected with RLS in `supabase/schema.sql`.
+
+### 3. Pakistani & International Payment Architecture
+Designed around `IPaymentGatewayProvider` in `src/lib/payments/types.ts`:
+- **Cash on Delivery (COD):** Domestic Pakistan & International express courier settlement.
+- **Direct Bank Wire (IBAN Remittance):** Meezan Bank (Islamic Banking), Standard Chartered Bank Pakistan, and JPMorgan Chase Commercial (USA).
+- **JazzCash Mobile Wallet & 3D-Secure:** HMAC-SHA256 signature calculations and Till #982104 integration.
+- **EasyPaisa Mobile Account & OTC:** Mobile account push and 72-hour voucher remittance (`0300-8849201`).
+- **1Link / Kuickpay 1Bill Voucher:** 18-digit consumer number generator allowing payment via 40+ Pakistani banking apps (HBL, Meezan, SCB, Alfalah, Nayapay, Sadapay) and ATMs.
+- *Strict Compliance:* Extensible architecture with explicit configuration requirements; does not simulate fake successful transactions.
+
+### 4. Atelier Admin Management Console (`/admin`)
+- **Security Passcode Gate:** Restricted personnel access with authorization passcode (`1994`).
+- **Overview & Analytics:** Real-time KPI counters for revenue, dispatches, active patrons, and active silhouettes.
+- **Product Catalog CRUD:** Create new silhouettes with live image preview and category mapping.
+- **Live Inventory Warehouse:** Unit counters per silhouette with low-stock warnings ($< 5$ units) and instant $+ / -$ adjustments.
+- **Orders Pipeline:** Real-time order synchronization with interactive status update selector (`pending`, `confirmed`, `processing`, `shipped`, `delivered`, `cancelled`).
+- **Patrons Directory:** Aggregates unique client orders, contact information, and lifetime value (LTV).
+- **Store Settings & Announcements:** Live global announcement bar ticker editor and complimentary shipping threshold settings.
 
 ```
 reference_frames/
-├── verification_phase3_01_hoodie_overview.png     # Minimal editorial stage with suspended hanger
-├── verification_phase3_02_hoodie_back_view.png    # Front / Back angle switcher in action
-├── verification_phase3_03_hoodie_color_switch.png # Smooth colorway crossfade (Forest Green)
-├── verification_phase3_04_hoodie_cart_drawer.png  # Added to bag with live cart drawer
-├── verification_phase3_05_sneaker_overview.png    # Floating sneaker with breathing shadow
-├── verification_phase3_06_sneaker_angle_switch.png# Supporting viewing angles crossfade
-├── verification_phase3_07_sneaker_cart_drawer.png # Orange button state & cart integration
-└── verification_phase3_08_home_featured_sneaker.png# Homepage featured sneaker showcase
+├── verification_phase4_01_catalog.png            # Complete catalog with filters & sorting
+├── verification_phase4_02_search.png             # Archival search matching "hoodie"
+├── verification_phase4_03_cart_drawer.png        # Persistent cart with size L added
+├── verification_phase4_04_checkout_form.png      # Express checkout with shipping fields
+├── verification_phase4_05_order_confirmation.png # Server order authorization confirmation
+├── verification_phase4_06_account_orders.png     # Customer order history pipeline
+├── verification_phase4_07_admin_orders.png       # Real-time admin orders synchronization
+└── verification_phase4_08_admin_inventory.png    # Live warehouse inventory stock controller
 ```
 
 ---
@@ -165,7 +192,9 @@ main (Production Releases)
  │    │
  │    ├── feature/clothing-rail-engine         ──► Phase 2 (Suspended Rail & Modal) [MERGED]
  │    │
- │    └── feature/product-presentation-phase3  ──► Phase 3 (Hoodie & Sneaker Detail) [ACTIVE]
+ │    ├── feature/product-presentation-phase3  ──► Phase 3 (Hoodie & Sneaker Detail) [MERGED]
+ │    │
+ │    └── feature/full-ecommerce-engine        ──► Phase 4 (Full E-Commerce & Payments) [COMPLETED]
 ```
 
 ### Branches:
@@ -173,11 +202,12 @@ main (Production Releases)
 * `develop`: Integration branch where tested feature branches are consolidated.
 * `feature/try-the-look-runway`: Phase 1 interactive model carousel, outfit bundles, and verification suite.
 * `feature/clothing-rail-engine`: Phase 2 tension wire mechanics, wooden hangers, dangling tags, and suspended modal.
-* `feature/product-presentation-phase3`: Phase 3 minimal editorial hoodie layout, interactive zoom lens, floating sneaker, viewing angle thumbnails, and orange-accented purchase state machine.
+* `feature/product-presentation-phase3`: Phase 3 minimal editorial hoodie layout, interactive zoom lens, floating sneaker, viewing angle thumbnails, and orange purchase state machine.
+* `feature/full-ecommerce-engine`: Phase 4 complete customer account, search, checkout, Pakistani payment gateways, server security, and admin management console.
 
 ---
 
-## ✦ Full Site Architecture (All 18 Routes Pre-Rendered)
+## ✦ Full Site Architecture (All 21 Routes)
 
 Every single route is built with responsive mobile & desktop UX, accessible semantic HTML, and zero placeholder links:
 
@@ -189,7 +219,7 @@ Every single route is built with responsive mobile & desktop UX, accessible sema
 ├── /search ................... Real-Time Search across Silhouettes & Materials
 ├── /cart ..................... Shopping Bag with Free Shipping Meter ($200 Threshold)
 ├── /checkout ................. Multi-Step Checkout (Address, COD, Wire, Gateway Validation)
-├── /account .................. Client Portal (Profile, Saved Addresses, Wishlist)
+├── /account .................. Client Portal (Profile, Saved Addresses, Wishlist, Auth)
 ├── /account/orders ........... Order History Pipeline (Confirmed → Shipped → Delivered)
 ├── /about .................... Brand Manifesto, Portuguese Fleece & Japanese Denim Mills
 ├── /contact .................. Client Concierge & Flagship SoHo Showroom Inquiries
@@ -199,11 +229,14 @@ Every single route is built with responsive mobile & desktop UX, accessible sema
 ├── /terms .................... Commercial Terms & Intellectual Property
 ├── /admin .................... Protected Store Administration Dashboard
 │   ├── Overview .............. Revenue, Orders, Patrons & Silhouette Analytics
-│   ├── Products .............. Full Product CRUD, Variants & Live Inventory
-│   ├── Orders ................ Order Fulfillment Lifecycle & Status Updater
+│   ├── Products .............. Full Product CRUD & Variants
+│   ├── Live Inventory ........ Warehouse Unit Counters & Low-Stock Alerts
+│   ├── Orders ................ Real-Time Fulfillment Pipeline & Status Updater
+│   ├── Patrons ............... Customer Directory & Lifetime Spend
 │   ├── Collections ........... Manage Drops & Product Associations
 │   ├── Promotions ............ Live Global Announcement Bar Editor
 │   └── Settings .............. Brand Identity, Shipping Fees & Currency
+├── /api/orders ............... Server-Side Order Processing & Price Validation API
 ├── /sitemap.xml .............. Dynamic SEO Search Engine Index
 └── /robots.txt ............... Automated Crawler Directives
 ```
@@ -226,15 +259,6 @@ Every single route is built with responsive mobile & desktop UX, accessible sema
 * **Headlines:** `Playfair Display` (Classic editorial high-fashion serif)
 * **Interface & Body:** `Inter` / `Geist` (Modern, readable Swiss sans-serif)
 * **Specs & Numbers:** `Geist Mono` (Monospaced uppercase tracking for sizes, SKUs, and prices)
-
----
-
-## ✦ Database Architecture (Supabase PostgreSQL)
-
-Located in [`supabase/schema.sql`](supabase/schema.sql), the database consists of 19 normalized tables:
-- `profiles`, `addresses`, `categories`, `collections`, `products`, `product_variants`, `product_images`, `orders`, `order_items`, `inventory_logs`, `discount_codes`, `store_settings`.
-- **Security:** Full Row Level Security (RLS) policies enforcing patron privacy and administrative controls.
-- **Resilience:** Automatic fallback to offline-resilient local state when database credentials are not supplied.
 
 ---
 
@@ -261,7 +285,7 @@ npm run build
 npm start
 ```
 Open [http://localhost:3000](http://localhost:3000) to view the storefront.  
-Open [http://localhost:3000/admin](http://localhost:3000/admin) to view the admin management dashboard.
+Open [http://localhost:3000/admin](http://localhost:3000/admin) to view the admin management dashboard (Passcode: `1994`).
 
 ---
 
