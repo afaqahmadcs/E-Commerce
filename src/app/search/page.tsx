@@ -5,9 +5,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Search as SearchIcon, Heart, ShoppingBag, X } from "lucide-react";
+import { motion } from "framer-motion";
 import { PRODUCTS_DATA } from "@/data/products";
 import { useCartStore } from "@/store/useCartStore";
 import { Product } from "@/types";
+import { staggerGridVariants, gridItemVariants } from "@/components/animations/motionPresets";
 
 const SUGGESTED_QUERIES = [
   "Hoodie",
@@ -165,13 +167,21 @@ function SearchPageContent() {
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <motion.div
+            variants={staggerGridVariants}
+            initial="hidden"
+            animate="visible"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"
+          >
             {results.map((product) => {
               const wishlisted = wishlistIds.includes(product.id);
+              const alternateImage = product.secondaryImage || product.allImages?.[1];
 
               return (
-                <div
+                <motion.div
                   key={product.id}
+                  variants={gridItemVariants}
+                  whileHover={{ y: -4, transition: { duration: 0.25 } }}
                   className="group flex flex-col bg-brand-card/30 border border-brand-border/60 rounded-lg p-3 hover:border-brand-text/30 transition-all shadow-sm"
                 >
                   <Link href={`/products/${product.slug}`} className="relative block">
@@ -180,13 +190,27 @@ function SearchPageContent() {
                         src={product.primaryImage}
                         alt={product.name}
                         fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-700"
+                        className={`object-cover transition-all duration-700 ${
+                          alternateImage
+                            ? "group-hover:opacity-0 group-hover:scale-105"
+                            : "group-hover:scale-105"
+                        }`}
                         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                       />
 
+                      {alternateImage && (
+                        <Image
+                          src={alternateImage}
+                          alt={`${product.name} alternate view`}
+                          fill
+                          className="object-cover opacity-0 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700"
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                        />
+                      )}
+
                       {/* Labels */}
                       {product.isNewArrival && (
-                        <span className="absolute top-3 left-3 bg-brand-accent text-white px-2 py-0.5 text-[9px] font-mono tracking-widest uppercase font-bold rounded shadow-sm">
+                        <span className="absolute top-3 left-3 bg-brand-accent text-white px-2 py-0.5 text-[9px] font-mono tracking-widest uppercase font-bold rounded shadow-sm z-10">
                           NEW DROP
                         </span>
                       )}
@@ -198,7 +222,7 @@ function SearchPageContent() {
                           e.stopPropagation();
                           toggleWishlist(product.id);
                         }}
-                        className={`absolute top-3 right-3 p-2 rounded-full backdrop-blur-md transition-all ${
+                        className={`absolute top-3 right-3 p-2 rounded-full backdrop-blur-md transition-all z-10 ${
                           wishlisted
                             ? "bg-white text-brand-accent shadow"
                             : "bg-white/80 text-brand-muted hover:text-brand-accent hover:bg-white"
@@ -211,7 +235,7 @@ function SearchPageContent() {
                       </button>
 
                       {/* Quick Add Button */}
-                      <div className="absolute inset-x-3 bottom-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <div className="absolute inset-x-3 bottom-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
                         <button
                           onClick={(e) => handleQuickAdd(e, product)}
                           className="w-full py-2 bg-brand-text/95 hover:bg-brand-dark text-white rounded text-[11px] font-mono uppercase tracking-wider flex items-center justify-center space-x-1.5 shadow-lg backdrop-blur-sm active:scale-95 transition-all"
@@ -252,10 +276,10 @@ function SearchPageContent() {
                       </div>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         )}
       </div>
     </div>

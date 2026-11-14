@@ -4,6 +4,7 @@ import { useState, useMemo, Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { motion } from "framer-motion";
 import {
   SlidersHorizontal,
   Heart,
@@ -13,6 +14,7 @@ import {
 import { PRODUCTS_DATA } from "@/data/products";
 import { ProductCategory, Product } from "@/types";
 import { useCartStore } from "@/store/useCartStore";
+import { staggerGridVariants, gridItemVariants } from "@/components/animations/motionPresets";
 
 const CATEGORY_BANNERS: Record<string, { title: string; subtitle: string; desc: string; image: string }> = {
   all: {
@@ -281,27 +283,51 @@ function ShopContent() {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mt-10">
+          <motion.div
+            variants={staggerGridVariants}
+            initial="hidden"
+            animate="visible"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mt-10"
+          >
             {filteredProducts.map((product) => {
               const wishlisted = wishlistIds.includes(product.id);
+              const alternateImage = product.secondaryImage || product.allImages?.[1];
 
               return (
-                <div
+                <motion.div
                   key={product.id}
+                  variants={gridItemVariants}
+                  whileHover={{ y: -4, transition: { duration: 0.25, ease: [0.16, 1, 0.3, 1] } }}
                   className="group flex flex-col bg-brand-card/30 border border-brand-border/60 rounded-lg p-3 hover:border-brand-text/30 transition-all shadow-sm"
                 >
                   <Link href={`/products/${product.slug}`} className="relative block">
                     <div className="relative aspect-[3/4] w-full bg-[#F3F2EE] rounded overflow-hidden">
+                      {/* Primary Packshot */}
                       <Image
                         src={product.primaryImage}
                         alt={product.name}
                         fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-700"
+                        className={`object-cover transition-all duration-700 ${
+                          alternateImage
+                            ? "group-hover:opacity-0 group-hover:scale-105"
+                            : "group-hover:scale-105"
+                        }`}
                         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                       />
 
+                      {/* Genuine Alternate Angle / Lifestyle Reveal on Hover */}
+                      {alternateImage && (
+                        <Image
+                          src={alternateImage}
+                          alt={`${product.name} alternate view`}
+                          fill
+                          className="object-cover opacity-0 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700"
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                        />
+                      )}
+
                       {/* Labels and Badges */}
-                      <div className="absolute top-3 left-3 flex flex-col gap-1">
+                      <div className="absolute top-3 left-3 flex flex-col gap-1 z-10">
                         {product.isNewArrival && (
                           <span className="bg-brand-accent text-white px-2 py-0.5 text-[9px] font-mono tracking-widest uppercase font-bold rounded shadow-sm">
                             NEW DROP
@@ -321,7 +347,7 @@ function ShopContent() {
                           e.stopPropagation();
                           toggleWishlist(product.id);
                         }}
-                        className={`absolute top-3 right-3 p-2 rounded-full backdrop-blur-md transition-all ${
+                        className={`absolute top-3 right-3 p-2 rounded-full backdrop-blur-md transition-all z-10 ${
                           wishlisted
                             ? "bg-white text-brand-accent shadow"
                             : "bg-white/80 text-brand-muted hover:text-brand-accent hover:bg-white"
@@ -334,7 +360,7 @@ function ShopContent() {
                       </button>
 
                       {/* Quick Add Button on Hover */}
-                      <div className="absolute inset-x-3 bottom-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <div className="absolute inset-x-3 bottom-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
                         <button
                           onClick={(e) => handleQuickAdd(e, product)}
                           className="w-full py-2 bg-brand-text/95 hover:bg-brand-dark text-white rounded text-[11px] font-mono uppercase tracking-wider flex items-center justify-center space-x-1.5 shadow-lg backdrop-blur-sm active:scale-95 transition-all"
@@ -388,10 +414,10 @@ function ShopContent() {
                       </div>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         )}
       </div>
     </div>

@@ -140,57 +140,75 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
 
         {/* Product Cards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {products.map((product) => (
-            <Link
-              key={product.id}
-              href={`/products/${product.slug}`}
-              className="group flex flex-col bg-brand-card/30 border border-brand-border/60 rounded-lg p-3 hover:border-brand-text/30 transition-all shadow-sm"
-            >
-              <div className="relative aspect-[3/4] w-full bg-[#F3F2EE] rounded overflow-hidden">
-                <Image
-                  src={product.primaryImage}
-                  alt={product.name}
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-700"
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                />
+          {products.map((product) => {
+            const alternateImage = product.secondaryImage || product.allImages?.[1];
 
-                {product.isNewArrival && (
-                  <span className="absolute top-3 left-3 bg-brand-accent text-white px-2 py-0.5 text-[9px] font-mono tracking-widest uppercase font-bold rounded shadow-sm">
-                    NEW DROP
-                  </span>
-                )}
-              </div>
+            return (
+              <Link
+                key={product.id}
+                href={`/products/${product.slug}`}
+                className="group flex flex-col bg-brand-card/30 border border-brand-border/60 rounded-lg p-3 hover:border-brand-text/30 hover:-translate-y-1 transition-all duration-300 shadow-sm"
+              >
+                <div className="relative aspect-[3/4] w-full bg-[#F3F2EE] rounded overflow-hidden">
+                  <Image
+                    src={product.primaryImage}
+                    alt={product.name}
+                    fill
+                    className={`object-cover transition-all duration-700 ${
+                      alternateImage
+                        ? "group-hover:opacity-0 group-hover:scale-105"
+                        : "group-hover:scale-105"
+                    }`}
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                  />
 
-              <div className="mt-4 flex flex-col justify-between flex-1">
-                <div>
-                  <span className="text-[10px] uppercase tracking-wider text-brand-muted font-sans font-medium block">
-                    {product.category}
-                  </span>
-                  <h3 className="font-serif text-base text-brand-text group-hover:text-brand-accent transition-colors mt-0.5 line-clamp-1">
-                    {product.name}
-                  </h3>
+                  {alternateImage && (
+                    <Image
+                      src={alternateImage}
+                      alt={`${product.name} alternate view`}
+                      fill
+                      className="object-cover opacity-0 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700"
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                    />
+                  )}
+
+                  {product.isNewArrival && (
+                    <span className="absolute top-3 left-3 bg-brand-accent text-white px-2 py-0.5 text-[9px] font-mono tracking-widest uppercase font-bold rounded shadow-sm z-10">
+                      NEW DROP
+                    </span>
+                  )}
                 </div>
 
-                <div className="mt-3 flex items-center justify-between pt-2 border-t border-brand-border/40">
-                  <span className="font-mono text-xs font-semibold text-brand-text">
-                    ${product.basePrice.toFixed(2)}
-                  </span>
+                <div className="mt-4 flex flex-col justify-between flex-1">
+                  <div>
+                    <span className="text-[10px] uppercase tracking-wider text-brand-muted font-sans font-medium block">
+                      {product.category}
+                    </span>
+                    <h3 className="font-serif text-base text-brand-text group-hover:text-brand-accent transition-colors mt-0.5 line-clamp-1">
+                      {product.name}
+                    </h3>
+                  </div>
 
-                  <div className="flex items-center space-x-1">
-                    {product.availableColors.slice(0, 3).map((col) => (
-                      <span
-                        key={col.name}
-                        className="w-2.5 h-2.5 rounded-full border border-black/10"
-                        style={{ backgroundColor: col.hex }}
-                        title={col.name}
-                      />
-                    ))}
+                  <div className="mt-3 flex items-center justify-between pt-2 border-t border-brand-border/40">
+                    <span className="font-mono text-xs font-semibold text-brand-text">
+                      ${product.basePrice.toFixed(2)}
+                    </span>
+
+                    <div className="flex items-center space-x-1">
+                      {product.availableColors.slice(0, 3).map((col) => (
+                        <span
+                          key={col.name}
+                          className="w-2.5 h-2.5 rounded-full border border-black/10"
+                          style={{ backgroundColor: col.hex }}
+                          title={col.name}
+                        />
+                      ))}
+                    </div>
                   </div>
                 </div>
-              </div>
-            </Link>
-          ))}
+              </Link>
+            );
+          })}
         </div>
 
         {/* Sibling Collections Strip */}

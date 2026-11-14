@@ -17,6 +17,7 @@ import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Product } from "@/types";
 import { PRODUCTS_DATA } from "@/data/products";
 import { useCartStore } from "@/store/useCartStore";
+import { SectionReveal } from "@/components/animations/SectionReveal";
 
 interface ProductDetailClientProps {
   product: Product;
@@ -1092,7 +1093,7 @@ export function ProductDetailClient({
 
       {/* Complete Your Atelier: Related Products */}
       {relatedProducts.length > 0 && (
-        <div className="max-w-7xl mx-auto px-6 sm:px-12 mt-20 pt-12 border-t border-brand-border">
+        <SectionReveal className="max-w-7xl mx-auto px-6 sm:px-12 mt-20 pt-12 border-t border-brand-border">
           <span className="text-[10px] font-mono tracking-widest uppercase text-brand-accent font-semibold block">
             COMPLETE YOUR ATELIER
           </span>
@@ -1130,12 +1131,12 @@ export function ProductDetailClient({
               </Link>
             ))}
           </div>
-        </div>
+        </SectionReveal>
       )}
 
       {/* Recently Viewed Silhouettes */}
       {recentlyViewed.length > 0 && (
-        <div className="max-w-7xl mx-auto px-6 sm:px-12 mt-16 pt-12 border-t border-brand-border">
+        <SectionReveal className="max-w-7xl mx-auto px-6 sm:px-12 mt-16 pt-12 border-t border-brand-border">
           <span className="text-[10px] font-mono tracking-widest uppercase text-brand-accent font-semibold block">
             RECENTLY EXPLORED
           </span>
@@ -1173,7 +1174,7 @@ export function ProductDetailClient({
               </Link>
             ))}
           </div>
-        </div>
+        </SectionReveal>
       )}
       {/* Mobile Sticky Quick-Action Bar */}
       <div className="md:hidden fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-brand-border px-4 py-3 z-40 flex items-center justify-between shadow-2xl">

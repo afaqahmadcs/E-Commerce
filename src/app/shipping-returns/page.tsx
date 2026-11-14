@@ -1,4 +1,5 @@
 import { Truck, RotateCcw } from "lucide-react";
+import { SectionReveal } from "@/components/animations/SectionReveal";
 
 export default function ShippingReturnsPage() {
   return (
@@ -15,8 +16,8 @@ export default function ShippingReturnsPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div className="bg-white border border-brand-border rounded-xl p-8 space-y-4 shadow-sm">
+      <SectionReveal className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="bg-white border border-brand-border rounded-xl p-8 space-y-4 shadow-sm hover:shadow transition-shadow">
           <Truck className="w-6 h-6 text-brand-accent" />
           <h2 className="font-serif text-xl font-medium text-brand-text">
             Complimentary Shipping
@@ -32,7 +33,7 @@ export default function ShippingReturnsPage() {
           </ul>
         </div>
 
-        <div className="bg-white border border-brand-border rounded-xl p-8 space-y-4 shadow-sm">
+        <div className="bg-white border border-brand-border rounded-xl p-8 space-y-4 shadow-sm hover:shadow transition-shadow">
           <RotateCcw className="w-6 h-6 text-brand-accent" />
           <h2 className="font-serif text-xl font-medium text-brand-text">
             30-Day Effortless Returns
@@ -47,17 +48,16 @@ export default function ShippingReturnsPage() {
             <li>Refunds are credited to the original payment method within 5 days</li>
           </ul>
         </div>
-      </div>
+      </SectionReveal>
 
-      <div className="bg-brand-card/90 border border-brand-border rounded-xl p-8 space-y-4">
+      <SectionReveal className="bg-brand-card/90 border border-brand-border rounded-xl p-8 space-y-4">
         <h3 className="font-serif text-lg font-medium text-brand-text">
           Import Duties & Taxes
         </h3>
         <p className="text-xs text-brand-muted leading-relaxed">
           For all dispatches to North America, the European Union, the United Kingdom, and the UAE, all applicable import duties, customs clearance tariffs, and local taxes are pre-calculated and collected at checkout. There are never any unexpected COD customs fees upon delivery.
         </p>
-      </div>
+      </SectionReveal>
     </div>
   );
 }
-

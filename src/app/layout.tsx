@@ -6,6 +6,7 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { CartDrawer } from "@/components/cart/CartDrawer";
 import { SearchModal } from "@/components/search/SearchModal";
+import { PageTransition } from "@/components/animations/PageTransition";
 
 const playfair = Playfair_Display({
   variable: "--font-serif",
@@ -47,8 +48,8 @@ export default function RootLayout({
         {/* Global Luxury Navigation */}
         <Header />
 
-        {/* Page Content */}
-        <div className="flex-1">{children}</div>
+        {/* Page Content with Refined Route Transitions */}
+        <PageTransition>{children}</PageTransition>
 
         {/* Global Editorial Footer */}
         <Footer />

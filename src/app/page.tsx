@@ -8,6 +8,7 @@ import { EditorialBanners } from "@/components/home/EditorialBanners";
 import { BrandEditorial } from "@/components/home/BrandEditorial";
 import { CommunityGrid } from "@/components/home/CommunityGrid";
 import { NewsletterSection } from "@/components/home/NewsletterSection";
+import { SectionReveal } from "@/components/animations/SectionReveal";
 
 export default function HomePage() {
   return (
@@ -25,22 +26,34 @@ export default function HomePage() {
       <SneakerPerspectiveSection />
 
       {/* 5. Category Architecture */}
-      <CategoryGrid />
+      <SectionReveal>
+        <CategoryGrid />
+      </SectionReveal>
 
       {/* 6. Seasonal Best Sellers & Curated Drops */}
-      <CuratedDrops />
+      <SectionReveal>
+        <CuratedDrops />
+      </SectionReveal>
 
       {/* 7. Editorial Campaign Banners */}
-      <EditorialBanners />
+      <SectionReveal>
+        <EditorialBanners />
+      </SectionReveal>
 
       {/* 8. Brand Editorial Manifesto & Atelier Craftsmanship */}
-      <BrandEditorial />
+      <SectionReveal>
+        <BrandEditorial />
+      </SectionReveal>
 
       {/* 9. Curated Community Looks */}
-      <CommunityGrid />
+      <SectionReveal>
+        <CommunityGrid />
+      </SectionReveal>
 
       {/* 10. Private Atelier Newsletter Dispatch */}
-      <NewsletterSection />
+      <SectionReveal>
+        <NewsletterSection />
+      </SectionReveal>
     </main>
   );
 }

@@ -4,8 +4,10 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Heart, ShoppingBag, ArrowRight, Trash2, ArrowLeft } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useCartStore } from "@/store/useCartStore";
 import { PRODUCTS_DATA } from "@/data/products";
+import { staggerGridVariants, gridItemVariants } from "@/components/animations/motionPresets";
 
 export default function WishlistPage() {
   const [mounted, setMounted] = useState(false);
@@ -84,58 +86,68 @@ export default function WishlistPage() {
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mt-10">
-            {wishlistedProducts.map((product) => (
-              <div
-                key={product.id}
-                className="group flex flex-col bg-brand-card/40 border border-brand-border/70 rounded-lg p-3 hover:border-brand-text/30 transition-all shadow-sm"
-              >
-                <div className="relative aspect-[3/4] w-full bg-[#F3F2EE] rounded overflow-hidden">
-                  <Image
-                    src={product.primaryImage}
-                    alt={product.name}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-700"
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                  />
-                  <button
-                    onClick={() => toggleWishlist(product.id)}
-                    className="absolute top-3 right-3 p-2 bg-white/90 backdrop-blur-sm rounded-full text-brand-accent hover:bg-white shadow transition-transform active:scale-90"
-                    title="Remove from wishlist"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-
-                <div className="mt-4 flex flex-col justify-between flex-1 space-y-3">
-                  <div>
-                    <span className="text-[10px] uppercase tracking-wider text-brand-muted font-sans font-medium block">
-                      {product.category}
-                    </span>
-                    <Link
-                      href={`/products/${product.slug}`}
-                      className="font-serif text-base text-brand-text hover:text-brand-accent transition-colors line-clamp-1 mt-0.5"
-                    >
-                      {product.name}
-                    </Link>
-                  </div>
-
-                  <div className="flex items-center justify-between pt-2 border-t border-brand-border/60">
-                    <span className="font-mono text-xs font-semibold text-brand-text">
-                      ${product.basePrice.toFixed(2)}
-                    </span>
+          <motion.div
+            variants={staggerGridVariants}
+            initial="hidden"
+            animate="visible"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mt-10"
+          >
+            <AnimatePresence>
+              {wishlistedProducts.map((product) => (
+                <motion.div
+                  key={product.id}
+                  variants={gridItemVariants}
+                  exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
+                  whileHover={{ y: -4, transition: { duration: 0.25 } }}
+                  className="group flex flex-col bg-brand-card/40 border border-brand-border/70 rounded-lg p-3 hover:border-brand-text/30 transition-all shadow-sm"
+                >
+                  <div className="relative aspect-[3/4] w-full bg-[#F3F2EE] rounded overflow-hidden">
+                    <Image
+                      src={product.primaryImage}
+                      alt={product.name}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-700"
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                    />
                     <button
-                      onClick={() => handleMoveToBag(product)}
-                      className="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-brand-text hover:bg-brand-dark text-white rounded text-[11px] font-mono uppercase tracking-wider transition-colors shadow-sm"
+                      onClick={() => toggleWishlist(product.id)}
+                      className="absolute top-3 right-3 p-2 bg-white/90 backdrop-blur-sm rounded-full text-brand-accent hover:bg-white shadow transition-transform active:scale-90 z-10"
+                      title="Remove from wishlist"
                     >
-                      <ShoppingBag className="w-3.5 h-3.5" />
-                      <span>Add to Bag</span>
+                      <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
-                </div>
-              </div>
-            ))}
-          </div>
+
+                  <div className="mt-4 flex flex-col justify-between flex-1 space-y-3">
+                    <div>
+                      <span className="text-[10px] uppercase tracking-wider text-brand-muted font-sans font-medium block">
+                        {product.category}
+                      </span>
+                      <Link
+                        href={`/products/${product.slug}`}
+                        className="font-serif text-base text-brand-text hover:text-brand-accent transition-colors line-clamp-1 mt-0.5"
+                      >
+                        {product.name}
+                      </Link>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-2 border-t border-brand-border/60">
+                      <span className="font-mono text-xs font-semibold text-brand-text">
+                        ${product.basePrice.toFixed(2)}
+                      </span>
+                      <button
+                        onClick={() => handleMoveToBag(product)}
+                        className="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-brand-text hover:bg-brand-dark text-white rounded text-[11px] font-mono uppercase tracking-wider transition-colors shadow-sm active:scale-95"
+                      >
+                        <ShoppingBag className="w-3.5 h-3.5" />
+                        <span>Add to Bag</span>
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </motion.div>
         )}
       </div>
     </div>

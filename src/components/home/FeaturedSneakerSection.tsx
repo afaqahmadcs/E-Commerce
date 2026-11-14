@@ -56,7 +56,7 @@ export function FeaturedSneakerSection() {
   };
 
   return (
-    <section className="relative w-full py-14 sm:py-20 lg:py-24 bg-[#F8F7F4] border-b border-brand-border select-none overflow-hidden">
+    <section className="relative w-full py-14 sm:py-20 lg:py-24 bg-[#F8F7F4] border-b border-brand-border select-none overflow-hidden scroll-mt-24">
       <div className="max-w-7xl mx-auto px-5 sm:px-10 lg:px-12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
           {/* Left Column: Large Floating Sneaker & Thumbnails (Matches Reference 14.5s) */}

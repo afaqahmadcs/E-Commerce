@@ -127,15 +127,17 @@ export function CartDrawer() {
                     </button>
                   </div>
                 ) : (
-                  items.map((item) => (
-                    <motion.div
-                      layout
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, height: 0 }}
-                      key={item.cartItemId}
-                      className="flex space-x-4 pb-6 border-b border-brand-border/70 last:border-0"
-                    >
+                  <AnimatePresence initial={false}>
+                    {items.map((item) => (
+                      <motion.div
+                        layout
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, height: 0, marginBottom: 0, overflow: "hidden" }}
+                        transition={{ duration: 0.25 }}
+                        key={item.cartItemId}
+                        className="flex space-x-4 pb-6 border-b border-brand-border/70 last:border-0"
+                      >
                       <div className="relative w-20 h-24 bg-brand-card rounded overflow-hidden shrink-0">
                         <Image
                           src={item.image}
@@ -200,7 +202,8 @@ export function CartDrawer() {
                         </div>
                       </div>
                     </motion.div>
-                  ))
+                  ))}
+                  </AnimatePresence>
                 )}
               </div>
 

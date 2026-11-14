@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { SectionReveal } from "@/components/animations/SectionReveal";
 
 export default function FAQPage() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
@@ -47,7 +49,7 @@ export default function FAQPage() {
         </p>
       </div>
 
-      <div className="space-y-4">
+      <SectionReveal className="space-y-4">
         {faqs.map((faq, index) => {
           const isOpen = openIndex === index;
           return (
@@ -58,25 +60,35 @@ export default function FAQPage() {
               <button
                 onClick={() => setOpenIndex(isOpen ? null : index)}
                 className="w-full p-6 text-left flex items-center justify-between text-brand-text font-serif text-base sm:text-lg hover:text-brand-accent transition-colors"
+                aria-expanded={isOpen}
               >
                 <span>{faq.q}</span>
-                {isOpen ? (
-                  <ChevronUp className="w-5 h-5 text-brand-accent shrink-0 ml-4" />
-                ) : (
-                  <ChevronDown className="w-5 h-5 text-brand-muted shrink-0 ml-4" />
-                )}
+                <ChevronDown
+                  className={`w-5 h-5 transition-transform duration-300 shrink-0 ml-4 ${
+                    isOpen ? "rotate-180 text-brand-accent" : "text-brand-muted"
+                  }`}
+                />
               </button>
 
-              {isOpen && (
-                <div className="px-6 pb-6 text-xs sm:text-sm text-brand-muted leading-relaxed font-sans border-t border-brand-border/40 pt-4">
-                  {faq.a}
-                </div>
-              )}
+              <AnimatePresence initial={false}>
+                {isOpen && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+                    className="overflow-hidden"
+                  >
+                    <div className="px-6 pb-6 text-xs sm:text-sm text-brand-muted leading-relaxed font-sans border-t border-brand-border/40 pt-4">
+                      {faq.a}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           );
         })}
-      </div>
+      </SectionReveal>
     </div>
   );
 }
-

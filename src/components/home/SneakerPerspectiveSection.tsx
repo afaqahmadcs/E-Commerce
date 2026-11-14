@@ -4,13 +4,15 @@ import { useState, useRef, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
 import { SNEAKERS_DATA } from "@/data/sneakers";
 
 export function SneakerPerspectiveSection() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [selectedEuSize, setSelectedEuSize] = useState<number | null>(40);
   const wheelAccumulatorRef = useRef(0);
-  const wheelTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const wheelCooldownRef = useRef(0);
+  const shouldReduceMotion = useReducedMotion();
 
   const activeSneaker = SNEAKERS_DATA[activeIndex];
 
@@ -24,35 +26,34 @@ export function SneakerPerspectiveSection() {
 
   // Touchpad two-finger swipe & mouse wheel support
   const handleWheel = useCallback((e: React.WheelEvent) => {
-    const isHorizontal = Math.abs(e.deltaX) > Math.abs(e.deltaY);
-    const delta = isHorizontal ? e.deltaX : (e.shiftKey ? e.deltaY : (Math.abs(e.deltaY) > 25 ? e.deltaY : 0));
+    const now = Date.now();
+    if (now - wheelCooldownRef.current < 160) return;
 
-    if (Math.abs(delta) > 5) {
+    const isHorizontal = Math.abs(e.deltaX) > Math.abs(e.deltaY);
+    const delta = isHorizontal ? e.deltaX : (e.shiftKey ? e.deltaY : (Math.abs(e.deltaY) > 20 ? e.deltaY : 0));
+
+    if (Math.abs(delta) > 4) {
       wheelAccumulatorRef.current += delta;
 
-      if (Math.abs(wheelAccumulatorRef.current) > 30) {
+      if (Math.abs(wheelAccumulatorRef.current) > 24) {
         if (wheelAccumulatorRef.current > 0) {
           handleNext();
         } else {
           handlePrev();
         }
         wheelAccumulatorRef.current = 0;
+        wheelCooldownRef.current = now;
       }
     }
-
-    if (wheelTimerRef.current) clearTimeout(wheelTimerRef.current);
-    wheelTimerRef.current = setTimeout(() => {
-      wheelAccumulatorRef.current = 0;
-    }, 160);
   }, [handleNext, handlePrev]);
 
   return (
     <section 
       onWheel={handleWheel}
-      className="relative w-full min-h-[82vh] bg-[#F8F7F4] py-14 px-6 sm:px-12 flex flex-col justify-between overflow-hidden border-b border-brand-border select-none"
+      className="relative w-full min-h-[84vh] bg-[#F8F7F4] pt-16 sm:pt-20 pb-10 px-6 sm:px-12 flex flex-col justify-between overflow-hidden border-b border-brand-border select-none scroll-mt-24"
     >
-      {/* Top Header & Active Sneaker Meta (Matches Reference 12.5s top-left) */}
-      <div className="max-w-7xl mx-auto w-full flex justify-between items-start z-10">
+      {/* Top Header & Active Sneaker Meta with generous top breathing room */}
+      <div className="max-w-7xl mx-auto w-full flex justify-between items-start z-10 pt-4 sm:pt-6">
         <div>
           <span className="text-xs font-mono tracking-widest text-brand-muted">
             {String(activeIndex + 1).padStart(2, "0")} / {String(SNEAKERS_DATA.length).padStart(2, "0")}
@@ -82,14 +83,26 @@ export function SneakerPerspectiveSection() {
         </div>
       </div>
 
-      {/* Main 3D Spatial Diagonal Perspective Curve (Matches Reference 11.5s - 13.5s) */}
-      <div className="relative flex-1 w-full max-w-6xl mx-auto flex items-center justify-center my-6 min-h-[340px]">
-        <div className="relative w-full h-[380px] flex items-center justify-center">
+      {/* Main 3D Spatial Diagonal Perspective Orbit Stage with Fluid Drag */}
+      <motion.div
+        drag="x"
+        dragConstraints={{ left: 0, right: 0 }}
+        dragElastic={0.25}
+        onDragEnd={(_e, info) => {
+          if (info.offset.x < -25 || info.velocity.x < -80) {
+            handleNext();
+          } else if (info.offset.x > 25 || info.velocity.x > 80) {
+            handlePrev();
+          }
+        }}
+        className="relative flex-1 w-full max-w-6xl mx-auto flex items-center justify-center my-6 min-h-[340px] cursor-grab active:cursor-grabbing select-none touch-pan-y"
+      >
+        <div className="relative w-full h-[380px] flex items-center justify-center pointer-events-none">
           {SNEAKERS_DATA.map((sneaker, index) => {
             // Calculate diagonal 3D trajectory positions
             const offset = index - activeIndex;
-            const xPos = offset * 180; // horizontal spacing
-            const yPos = -offset * 50;  // ascending diagonal slant
+            const xPos = offset * 180;
+            const yPos = -offset * 50;
             const scale = 1 - Math.abs(offset) * 0.15;
             const opacity = Math.max(1 - Math.abs(offset) * 0.35, 0.2);
             const zIndex = 20 - Math.abs(offset);
@@ -102,11 +115,11 @@ export function SneakerPerspectiveSection() {
                 key={sneaker.id}
                 onClick={() => setActiveIndex(index)}
                 style={{
-                  transform: `translate3d(${xPos}px, ${yPos}px, 0) scale(${scale})`,
+                  transform: `translate3d(${xPos}px, ${yPos}px, 0) scale(${shouldReduceMotion ? 1 : scale})`,
                   opacity,
                   zIndex,
                 }}
-                className="absolute cursor-pointer transition-all duration-700 ease-out flex flex-col items-center group"
+                className="absolute cursor-pointer transition-all duration-700 ease-out flex flex-col items-center group pointer-events-auto"
               >
                 <div className="relative w-64 sm:w-80 h-44 sm:h-52 drop-shadow-xl">
                   <Image
@@ -123,7 +136,7 @@ export function SneakerPerspectiveSection() {
             );
           })}
         </div>
-      </div>
+      </motion.div>
 
       {/* Bottom Controls Bar (Matches Reference 12.5s bottom) */}
       <div className="max-w-7xl mx-auto w-full flex flex-col md:flex-row items-center justify-between gap-6 z-10 pt-4 border-t border-brand-border/60">

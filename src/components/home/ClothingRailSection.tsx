@@ -60,8 +60,9 @@ export function ClothingRailSection() {
   // Framer motion x position for animated scrolling
   const x = useMotionValue(0);
   const smoothX = useSpring(x, {
-    stiffness: shouldReduceMotion ? 1000 : 260,
-    damping: shouldReduceMotion ? 100 : 28,
+    stiffness: shouldReduceMotion ? 1000 : 320,
+    damping: shouldReduceMotion ? 100 : 32,
+    mass: 0.5,
   });
 
   // Update drag constraints dynamically based on content width
@@ -70,34 +71,44 @@ export function ClothingRailSection() {
       if (railRef.current && containerRef.current) {
         const railWidth = railRef.current.scrollWidth;
         const containerWidth = containerRef.current.offsetWidth;
-        const maxScroll = Math.min(0, containerWidth - railWidth - 80);
-        setConstraints({ left: maxScroll, right: 0 });
+        const calculated = containerWidth - railWidth - 100;
+        // Never lock to 0: fallback to -1400 if measurement not ready
+        const minScroll = calculated < -200 ? calculated : -1400;
+        setConstraints({ left: minScroll, right: 0 });
       }
     };
 
     updateConstraints();
+    const t1 = setTimeout(updateConstraints, 300);
+    const t2 = setTimeout(updateConstraints, 1000);
     window.addEventListener("resize", updateConstraints);
-    return () => window.removeEventListener("resize", updateConstraints);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      window.removeEventListener("resize", updateConstraints);
+    };
   }, []);
 
   const handleStep = useCallback((direction: "left" | "right") => {
-    const stepAmount = 300;
+    const stepAmount = 320;
     const current = x.get();
     let target = direction === "left" ? current + stepAmount : current - stepAmount;
+    const minLeft = constraints.left < -200 ? constraints.left : -1400;
 
-    target = Math.max(constraints.left, Math.min(0, target));
+    target = Math.max(minLeft, Math.min(0, target));
     x.set(target);
   }, [constraints.left, x]);
 
   // Touchpad two-finger horizontal scroll & mouse wheel navigation
   const handleWheel = useCallback((e: React.WheelEvent) => {
-    // Check horizontal touchpad swipe or shift-wheel or mouse deltaX
-    const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : (e.shiftKey ? e.deltaY : (Math.abs(e.deltaX) > 1 ? e.deltaX : 0));
+    const isHorizontal = Math.abs(e.deltaX) > Math.abs(e.deltaY);
+    const delta = isHorizontal ? e.deltaX : (e.shiftKey ? e.deltaY : e.deltaY * 0.75);
 
-    if (Math.abs(delta) > 1) {
+    if (Math.abs(delta) > 1.5) {
       const current = x.get();
-      let target = current - delta * 1.6;
-      target = Math.max(constraints.left, Math.min(0, target));
+      let target = current - delta * 1.5;
+      const minLeft = constraints.left < -200 ? constraints.left : -1400;
+      target = Math.max(minLeft, Math.min(0, target));
       x.set(target);
     }
   }, [constraints.left, x]);
@@ -146,9 +157,14 @@ export function ClothingRailSection() {
           drag="x"
           dragConstraints={constraints}
           dragElastic={0.12}
-          dragTransition={{ bounceStiffness: 280, bounceDamping: 26, power: 0.16 }}
           onDragStart={handleDragStart}
-          onDragEnd={handleDragEnd}
+          onDragEnd={(_e, info) => {
+            const current = x.get();
+            const minLeft = constraints.left < -200 ? constraints.left : -1400;
+            const target = Math.max(minLeft, Math.min(0, current + info.offset.x * 0.3));
+            x.set(target);
+            handleDragEnd();
+          }}
           className="flex items-start space-x-4 sm:space-x-6 px-6 sm:px-16 cursor-grab active:cursor-grabbing relative z-10 py-2 w-max touch-pan-y will-change-transform"
         >
           {EXTENDED_RAIL_DATA.map((garment, index) => {

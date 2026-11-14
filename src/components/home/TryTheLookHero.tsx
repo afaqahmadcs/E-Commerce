@@ -14,8 +14,11 @@ export function TryTheLookHero() {
   const [activeHotspot, setActiveHotspot] = useState<string | null>(null);
   const [addedOutfit, setAddedOutfit] = useState(false);
   const [windowWidth, setWindowWidth] = useState(1200);
+  const [dragOffset, setDragOffset] = useState(0);
+
   const isDraggingRef = useRef(false);
-  const lastWheelTriggerRef = useRef(0);
+  const wheelAccumulatorRef = useRef(0);
+  const wheelCooldownRef = useRef(0);
 
   const shouldReduceMotion = useReducedMotion();
   const { addItem, openDrawer } = useCartStore();
@@ -32,7 +35,7 @@ export function TryTheLookHero() {
 
   // Calculate bundle pricing
   const originalTotal = currentLook.items.reduce((sum, item) => sum + item.price, 0);
-  const discountedTotal = originalTotal * (1 - currentLook.discountPercentage / 100);
+  const discountedTotal = Math.round(originalTotal * (1 - currentLook.discountPercentage / 100));
 
   const handlePrev = useCallback(() => {
     setActiveLookIndex((prev) => (prev > 0 ? prev - 1 : LOOKS_DATA.length - 1));
@@ -49,17 +52,25 @@ export function TryTheLookHero() {
   // Touchpad two-finger swipe & mouse wheel horizontal navigation
   const handleWheel = useCallback((e: React.WheelEvent) => {
     const now = Date.now();
-    if (now - lastWheelTriggerRef.current < 320) return;
+    if (now - wheelCooldownRef.current < 160) return;
 
-    // Detect horizontal touchpad swipe or Shift+wheel
-    if (Math.abs(e.deltaX) > 8) {
-      if (e.deltaX > 0) handleNext();
-      else handlePrev();
-      lastWheelTriggerRef.current = now;
-    } else if (e.shiftKey && Math.abs(e.deltaY) > 8) {
-      if (e.deltaY > 0) handleNext();
-      else handlePrev();
-      lastWheelTriggerRef.current = now;
+    // Detect horizontal touchpad swipe, mouse deltaX, or Shift+wheel
+    const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY)
+      ? e.deltaX
+      : (e.shiftKey ? e.deltaY : (Math.abs(e.deltaX) > 2 ? e.deltaX : 0));
+
+    if (Math.abs(delta) > 3) {
+      wheelAccumulatorRef.current += delta;
+
+      if (Math.abs(wheelAccumulatorRef.current) > 22) {
+        if (wheelAccumulatorRef.current > 0) {
+          handleNext();
+        } else {
+          handlePrev();
+        }
+        wheelAccumulatorRef.current = 0;
+        wheelCooldownRef.current = now;
+      }
     }
   }, [handleNext, handlePrev]);
 
@@ -83,17 +94,22 @@ export function TryTheLookHero() {
     isDraggingRef.current = true;
   };
 
+  const handleDrag = (_e: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+    setDragOffset(info.offset.x * 0.4);
+  };
+
   const handleDragEnd = (_e: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-    const threshold = 18;
-    if (info.offset.x < -threshold || info.velocity.x < -60) {
+    setDragOffset(0);
+    const threshold = 25;
+    if (info.offset.x < -threshold || info.velocity.x < -80) {
       handleNext();
-    } else if (info.offset.x > threshold || info.velocity.x > 60) {
+    } else if (info.offset.x > threshold || info.velocity.x > 80) {
       handlePrev();
     }
 
     setTimeout(() => {
       isDraggingRef.current = false;
-    }, 80);
+    }, 60);
   };
 
   const handleModelClick = (index: number) => {
@@ -129,24 +145,24 @@ export function TryTheLookHero() {
     }, 450);
   };
 
-  // Viewport calibrated horizontal spacing: allows 5 models visible simultaneously
-  const modelSpacing = windowWidth < 640 ? 110 : windowWidth < 1024 ? 135 : 160;
+  // Viewport calibrated horizontal spacing: allows 5-6 models visible simultaneously
+  const modelSpacing = windowWidth < 640 ? 115 : windowWidth < 1024 ? 140 : 168;
 
   return (
     <section 
       onWheel={handleWheel}
-      className="relative w-full min-h-[560px] lg:min-h-[620px] max-h-[850px] bg-[#F8F7F4] flex flex-col justify-between overflow-hidden border-b border-brand-border select-none"
+      className="relative w-full min-h-[580px] lg:min-h-[640px] max-h-[880px] bg-[#F8F7F4] flex flex-col justify-between overflow-hidden border-b border-brand-border select-none scroll-mt-24"
     >
-      {/* Top Section Header (Matches Reference 00.5s) */}
-      <div className="pt-4 sm:pt-6 px-5 sm:px-10 lg:px-12 max-w-7xl mx-auto w-full z-20 flex justify-between items-start">
-        <div className="max-w-[320px] sm:max-w-md">
+      {/* Top Section Header with comfortable clearance below sticky nav */}
+      <div className="pt-8 sm:pt-12 md:pt-14 px-5 sm:px-10 lg:px-12 max-w-7xl mx-auto w-full z-20 flex justify-between items-start">
+        <div className="max-w-[340px] sm:max-w-md">
           <AnimatePresence mode="wait">
             {isIsolated ? (
               <motion.div
                 key="header-isolated"
-                initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -8 }}
+                initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -6 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -8 }}
+                exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -6 }}
                 transition={{ duration: 0.25 }}
               >
                 <div className="flex items-center space-x-2">
@@ -168,9 +184,9 @@ export function TryTheLookHero() {
             ) : (
               <motion.div
                 key="header-lineup"
-                initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -8 }}
+                initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -6 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -8 }}
+                exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -6 }}
                 transition={{ duration: 0.25 }}
               >
                 <h1 className="font-serif text-3xl sm:text-4xl text-brand-text font-normal tracking-tight">
@@ -209,22 +225,23 @@ export function TryTheLookHero() {
 
       {/* Main Interactive Stage with Runway & Docked Right Panel */}
       <div className="relative flex-1 w-full max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between px-4 sm:px-8 my-1">
-        {/* Left/Center: Horizontal Model Runway */}
+        {/* Left/Center: Horizontal Model Runway with Smooth Pointer Drag */}
         <motion.div
           drag="x"
           dragConstraints={{ left: 0, right: 0 }}
-          dragElastic={0.25}
+          dragElastic={0.3}
           onDragStart={handleDragStart}
+          onDrag={handleDrag}
           onDragEnd={handleDragEnd}
           style={{ touchAction: "pan-y" }}
-          className="relative flex-1 w-full h-[320px] sm:h-[390px] md:h-[440px] lg:h-[480px] max-h-[52vh] flex items-end justify-center cursor-grab active:cursor-grabbing overflow-visible touch-pan-y"
+          className="relative flex-1 w-full h-[330px] sm:h-[400px] md:h-[450px] lg:h-[490px] max-h-[54vh] flex items-end justify-center cursor-grab active:cursor-grabbing overflow-visible touch-pan-y"
         >
           {LOOKS_DATA.map((look, index) => {
             const offset = index - activeLookIndex;
             const isCenter = offset === 0;
             const absOffset = Math.abs(offset);
 
-            const targetX = offset * modelSpacing;
+            const targetX = offset * modelSpacing + dragOffset;
 
             // Scale calculations: Center is 1.05x, +/-1 is 0.90x, +/-2 is 0.78x
             let scale = 1.05;
@@ -279,7 +296,7 @@ export function TryTheLookHero() {
                 }}
                 transition={{
                   duration: shouldReduceMotion ? 0.05 : 0.65,
-                  ease: [0.16, 1, 0.3, 1], // Luxury 650ms ease-out curve
+                  ease: [0.16, 1, 0.3, 1],
                 }}
                 style={{
                   zIndex,
@@ -289,8 +306,8 @@ export function TryTheLookHero() {
                 onClick={() => handleModelClick(index)}
                 className="absolute bottom-2 flex flex-col items-center justify-end group pointer-events-auto cursor-pointer"
               >
-                {/* Full-Body Model Figure with shoes on the floor */}
-                <div className="relative w-36 sm:w-44 md:w-50 lg:w-54 h-[300px] sm:h-[370px] md:h-[410px] lg:h-[450px] max-h-[50vh] flex items-end justify-center">
+                {/* Full-Body Model Figure with shoes resting naturally on floor */}
+                <div className="relative w-36 sm:w-44 md:w-50 lg:w-54 h-[310px] sm:h-[380px] md:h-[420px] lg:h-[460px] max-h-[52vh] flex items-end justify-center">
                   {/* Organic Ground Contact Shadow */}
                   <div
                     className={`absolute bottom-0 left-1/2 -translate-x-1/2 w-28 sm:w-36 h-3 rounded-full blur-[6px] pointer-events-none transform scale-y-45 transition-all duration-700 ${
@@ -409,7 +426,7 @@ export function TryTheLookHero() {
             </span>
           </div>
 
-          {/* Outfit Items List */}
+          {/* Outfit Items List - 100% Matching Active Model */}
           <div className="space-y-1.5">
             <AnimatePresence mode="wait">
               <motion.div

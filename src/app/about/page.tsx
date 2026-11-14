@@ -1,6 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Scissors, ShieldCheck, Feather } from "lucide-react";
+import { SectionReveal } from "@/components/animations/SectionReveal";
+import { ImageReveal } from "@/components/animations/ImageReveal";
 
 export default function AboutPage() {
   return (
@@ -11,7 +13,7 @@ export default function AboutPage() {
           src="/images/campaigns/campaign_08.jpg"
           alt="AFAQ SUPPLY Atelier Workshop"
           fill
-          className="object-cover opacity-50"
+          className="object-cover opacity-50 scale-105 transition-transform duration-1000"
           priority
           sizes="100vw"
         />
@@ -32,7 +34,7 @@ export default function AboutPage() {
 
       {/* Narrative Section */}
       <div className="max-w-4xl mx-auto px-6 sm:px-12 py-20 space-y-16">
-        <div className="space-y-6 text-brand-text leading-relaxed">
+        <SectionReveal className="space-y-6 text-brand-text leading-relaxed">
           <span className="text-[10px] font-mono tracking-widest uppercase text-brand-accent font-semibold block">
             OUR ARCHIVAL ESSENCE
           </span>
@@ -45,10 +47,10 @@ export default function AboutPage() {
           <p className="text-xs sm:text-sm text-brand-muted leading-relaxed">
             Every garment begins with custom yarn milling. Our 550 GSM French Terry loopback is knitted in Porto, Portugal using long-staple combed cotton. Our selvedge denim is woven on restored 1960s Toyoda shuttle looms in Okayama, Japan. Our leather goods and footwear are assembled in Florence by multi-generational leather artisans.
           </p>
-        </div>
+        </SectionReveal>
 
         {/* 3 Pillars of Craftsmanship */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-8 border-t border-brand-border">
+        <SectionReveal className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-8 border-t border-brand-border">
           <div className="space-y-3">
             <div className="w-10 h-10 rounded-full bg-brand-card flex items-center justify-center text-brand-accent">
               <Scissors className="w-5 h-5" />
@@ -84,10 +86,10 @@ export default function AboutPage() {
               Double-needle flatlock stitching, reinforced bartacks, and heavy-duty YKK Japanese hardware.
             </p>
           </div>
-        </div>
+        </SectionReveal>
 
         {/* Studio Image & Quote */}
-        <div className="relative aspect-[16/9] w-full rounded-xl overflow-hidden shadow-luxury border border-brand-border">
+        <ImageReveal className="relative aspect-[16/9] w-full rounded-xl shadow-luxury border border-brand-border">
           <Image
             src="/images/campaigns/campaign_02.jpg"
             alt="Tailoring craftsmanship"
@@ -100,10 +102,10 @@ export default function AboutPage() {
               &ldquo;True style does not demand attention through volume. It commands presence through cut, texture, and silence.&rdquo;
             </blockquote>
           </div>
-        </div>
+        </ImageReveal>
 
         {/* CTA to Explore */}
-        <div className="text-center pt-8 border-t border-brand-border space-y-4">
+        <SectionReveal className="text-center pt-8 border-t border-brand-border space-y-4">
           <h3 className="font-serif text-2xl text-brand-text">
             Experience the Atelier Collection
           </h3>
@@ -116,7 +118,7 @@ export default function AboutPage() {
               <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
-        </div>
+        </SectionReveal>
       </div>
     </div>
   );
