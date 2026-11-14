@@ -1,19 +1,56 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { SNEAKERS_DATA } from "@/data/sneakers";
 
 export function SneakerPerspectiveSection() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [selectedEuSize, setSelectedEuSize] = useState<number | null>(40);
+  const wheelAccumulatorRef = useRef(0);
+  const wheelTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const activeSneaker = SNEAKERS_DATA[activeIndex];
 
+  const handlePrev = useCallback(() => {
+    setActiveIndex((prev) => (prev > 0 ? prev - 1 : SNEAKERS_DATA.length - 1));
+  }, []);
+
+  const handleNext = useCallback(() => {
+    setActiveIndex((prev) => (prev < SNEAKERS_DATA.length - 1 ? prev + 1 : 0));
+  }, []);
+
+  // Touchpad two-finger swipe & mouse wheel support
+  const handleWheel = useCallback((e: React.WheelEvent) => {
+    const isHorizontal = Math.abs(e.deltaX) > Math.abs(e.deltaY);
+    const delta = isHorizontal ? e.deltaX : (e.shiftKey ? e.deltaY : (Math.abs(e.deltaY) > 25 ? e.deltaY : 0));
+
+    if (Math.abs(delta) > 5) {
+      wheelAccumulatorRef.current += delta;
+
+      if (Math.abs(wheelAccumulatorRef.current) > 30) {
+        if (wheelAccumulatorRef.current > 0) {
+          handleNext();
+        } else {
+          handlePrev();
+        }
+        wheelAccumulatorRef.current = 0;
+      }
+    }
+
+    if (wheelTimerRef.current) clearTimeout(wheelTimerRef.current);
+    wheelTimerRef.current = setTimeout(() => {
+      wheelAccumulatorRef.current = 0;
+    }, 160);
+  }, [handleNext, handlePrev]);
+
   return (
-    <section className="relative w-full min-h-[85vh] bg-[#F8F7F4] py-16 px-6 sm:px-12 flex flex-col justify-between overflow-hidden border-b border-brand-border select-none">
+    <section 
+      onWheel={handleWheel}
+      className="relative w-full min-h-[82vh] bg-[#F8F7F4] py-14 px-6 sm:px-12 flex flex-col justify-between overflow-hidden border-b border-brand-border select-none"
+    >
       {/* Top Header & Active Sneaker Meta (Matches Reference 12.5s top-left) */}
       <div className="max-w-7xl mx-auto w-full flex justify-between items-start z-10">
         <div>
@@ -46,8 +83,8 @@ export function SneakerPerspectiveSection() {
       </div>
 
       {/* Main 3D Spatial Diagonal Perspective Curve (Matches Reference 11.5s - 13.5s) */}
-      <div className="relative flex-1 w-full max-w-6xl mx-auto flex items-center justify-center my-6 min-h-[360px]">
-        <div className="relative w-full h-[400px] flex items-center justify-center">
+      <div className="relative flex-1 w-full max-w-6xl mx-auto flex items-center justify-center my-6 min-h-[340px]">
+        <div className="relative w-full h-[380px] flex items-center justify-center">
           {SNEAKERS_DATA.map((sneaker, index) => {
             // Calculate diagonal 3D trajectory positions
             const offset = index - activeIndex;
@@ -71,7 +108,7 @@ export function SneakerPerspectiveSection() {
                 }}
                 className="absolute cursor-pointer transition-all duration-700 ease-out flex flex-col items-center group"
               >
-                <div className="relative w-64 sm:w-80 h-44 sm:h-52 drop-shadow-2xl">
+                <div className="relative w-64 sm:w-80 h-44 sm:h-52 drop-shadow-xl">
                   <Image
                     src={sneaker.image}
                     alt={sneaker.modelName}
@@ -91,9 +128,23 @@ export function SneakerPerspectiveSection() {
       {/* Bottom Controls Bar (Matches Reference 12.5s bottom) */}
       <div className="max-w-7xl mx-auto w-full flex flex-col md:flex-row items-center justify-between gap-6 z-10 pt-4 border-t border-brand-border/60">
         {/* Left Section Label */}
-        <div className="hidden md:block">
-          <p className="text-[10px] font-mono tracking-widest uppercase text-brand-muted">
-            TOUCH / DRAG PERSPECTIVE
+        <div className="hidden md:flex items-center space-x-2">
+          <button
+            onClick={handlePrev}
+            className="p-1 rounded-full border border-neutral-300 hover:border-black text-brand-text transition-colors"
+            aria-label="Previous sneaker"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+          <button
+            onClick={handleNext}
+            className="p-1 rounded-full border border-neutral-300 hover:border-black text-brand-text transition-colors"
+            aria-label="Next sneaker"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
+          <p className="text-[10px] font-mono tracking-widest uppercase text-brand-muted ml-2">
+            TOUCH / DRAG / WHEEL PERSPECTIVE
           </p>
         </div>
 
@@ -112,7 +163,7 @@ export function SneakerPerspectiveSection() {
             ))}
           </div>
           <span className="text-[10px] font-mono text-brand-muted uppercase tracking-widest">
-            DRAG TO ROTATE
+            DRAG OR SWIPE TO ROTATE
           </span>
         </div>
 
@@ -138,7 +189,7 @@ export function SneakerPerspectiveSection() {
       </div>
 
       {/* OBSESSED Bold Watermark Header (Matches Reference 12.5s bottom edge) */}
-      <div className="text-center pt-8 overflow-hidden pointer-events-none opacity-10">
+      <div className="text-center pt-6 overflow-hidden pointer-events-none opacity-10">
         <span className="font-sans font-black text-6xl sm:text-8xl tracking-widest uppercase text-brand-text">
           OBSESSED
         </span>
@@ -146,4 +197,3 @@ export function SneakerPerspectiveSection() {
     </section>
   );
 }
-

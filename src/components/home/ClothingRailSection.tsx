@@ -1,19 +1,52 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, useMotionValue, useSpring, useReducedMotion } from "framer-motion";
 import { GARMENTS_DATA } from "@/data/garments";
 import { HangingGarment } from "@/types";
 import { GarmentQuickViewModal } from "./GarmentQuickViewModal";
 
+// Expand rail to 16 garments matching the dense archive rack in reference video
+const EXTENDED_RAIL_DATA: HangingGarment[] = [
+  ...GARMENTS_DATA,
+  {
+    ...GARMENTS_DATA[6],
+    id: "g-13",
+    name: "Archival Washed Midnight Hoodie",
+    priceTag: "$199",
+    hangerIndex: 13,
+  },
+  {
+    ...GARMENTS_DATA[4],
+    id: "g-14",
+    name: "Pine Green Heavy Fleece Hoodie",
+    priceTag: "$185",
+    hangerIndex: 14,
+  },
+  {
+    ...GARMENTS_DATA[1],
+    id: "g-15",
+    name: "Heavyweight Boxy Fleece Hoodie",
+    priceTag: "$195",
+    hangerIndex: 15,
+  },
+  {
+    ...GARMENTS_DATA[11],
+    id: "g-16",
+    name: "AFAQ Emblem Boxy Tee Black",
+    priceTag: "$105",
+    hangerIndex: 16,
+  },
+];
+
 export function ClothingRailSection() {
-  const [activeGarment, setActiveGarment] = useState<HangingGarment>(GARMENTS_DATA[6]); // Archival Hoodie $199
+  const [activeGarment, setActiveGarment] = useState<HangingGarment>(EXTENDED_RAIL_DATA[6]);
   const [modalGarment, setModalGarment] = useState<HangingGarment | null>(null);
   const [hoveredGarmentId, setHoveredGarmentId] = useState<string | null>(null);
-  const [constraints, setConstraints] = useState({ left: -1600, right: 0 });
+  const [constraints, setConstraints] = useState({ left: -1400, right: 0 });
 
   const railRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -23,7 +56,7 @@ export function ClothingRailSection() {
   // Framer motion x position for animated scrolling
   const x = useMotionValue(0);
   const smoothX = useSpring(x, {
-    stiffness: shouldReduceMotion ? 1000 : 240,
+    stiffness: shouldReduceMotion ? 1000 : 260,
     damping: shouldReduceMotion ? 100 : 28,
   });
 
@@ -33,7 +66,7 @@ export function ClothingRailSection() {
       if (railRef.current && containerRef.current) {
         const railWidth = railRef.current.scrollWidth;
         const containerWidth = containerRef.current.offsetWidth;
-        const maxScroll = Math.min(0, containerWidth - railWidth - 60);
+        const maxScroll = Math.min(0, containerWidth - railWidth - 80);
         setConstraints({ left: maxScroll, right: 0 });
       }
     };
@@ -43,15 +76,27 @@ export function ClothingRailSection() {
     return () => window.removeEventListener("resize", updateConstraints);
   }, []);
 
-  const handleStep = (direction: "left" | "right") => {
-    const stepAmount = 360;
+  const handleStep = useCallback((direction: "left" | "right") => {
+    const stepAmount = 300;
     const current = x.get();
     let target = direction === "left" ? current + stepAmount : current - stepAmount;
 
-    // Clamp within constraints
     target = Math.max(constraints.left, Math.min(0, target));
     x.set(target);
-  };
+  }, [constraints.left, x]);
+
+  // Touchpad two-finger horizontal scroll & mouse wheel navigation
+  const handleWheel = useCallback((e: React.WheelEvent) => {
+    const isHorizontal = Math.abs(e.deltaX) > Math.abs(e.deltaY);
+    const delta = isHorizontal ? e.deltaX : (e.shiftKey ? e.deltaY : e.deltaX || e.deltaY * 0.7);
+
+    if (Math.abs(delta) > 2) {
+      const current = x.get();
+      let target = current - delta * 1.3;
+      target = Math.max(constraints.left, Math.min(0, target));
+      x.set(target);
+    }
+  }, [constraints.left, x]);
 
   const handleDragStart = () => {
     isDraggingRef.current = true;
@@ -60,7 +105,7 @@ export function ClothingRailSection() {
   const handleDragEnd = () => {
     setTimeout(() => {
       isDraggingRef.current = false;
-    }, 120);
+    }, 80);
   };
 
   const handleGarmentClick = (garment: HangingGarment) => {
@@ -70,28 +115,25 @@ export function ClothingRailSection() {
   };
 
   return (
-    <section className="relative w-full py-14 sm:py-20 lg:py-24 bg-[#F8F7F4] border-b border-brand-border overflow-hidden select-none">
-      {/* Centered Editorial Header (Matches Reference 06.0s) */}
-      <div className="text-center max-w-xl mx-auto px-5 mb-8 sm:mb-12">
-        <span className="text-[10px] sm:text-[11px] font-mono tracking-luxury uppercase text-brand-accent font-semibold block">
-          NEW COLLECTION
+    <section 
+      onWheel={handleWheel}
+      className="relative w-full py-12 sm:py-16 bg-[#F8F7F4] border-b border-brand-border overflow-hidden select-none"
+    >
+      {/* Top Center Editorial Header (Matches Reference Image 5) */}
+      <div className="text-center max-w-xl mx-auto px-5 mb-4 sm:mb-6">
+        <span className="text-[10px] sm:text-[11px] font-mono tracking-luxury uppercase text-brand-muted font-medium block">
+          NEW COLLECTION &nbsp;&nbsp; PREMIUM STREETWEAR
         </span>
-        <h2 className="font-serif text-3xl sm:text-5xl text-brand-text font-normal tracking-tight mt-1">
-          PREMIUM STREETWEAR
-        </h2>
-        <p className="text-xs text-brand-muted mt-2 tracking-wide font-sans leading-relaxed">
-          Suspended silhouettes. Drag horizontally along the rail to explore cuts and fabrics.
-        </p>
       </div>
 
       {/* Main Hanging Rail Wire Stage */}
-      <div ref={containerRef} className="relative w-full py-8 sm:py-10 overflow-hidden">
-        {/* The Precision Steel Tension Wire running across screen */}
-        <div className="absolute top-[88px] inset-x-0 h-[2.5px] bg-gradient-to-r from-transparent via-[#8C8880] to-transparent z-0 shadow-sm" />
+      <div ref={containerRef} className="relative w-full py-6 sm:py-8 overflow-hidden">
+        {/* Continuous Precision Steel Tension Wire running across screen */}
+        <div className="absolute top-[52px] sm:top-[56px] inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-[#9A968F] to-transparent z-0 shadow-sm" />
         
-        {/* Subtle wire terminal fixtures on both edges */}
-        <div className="absolute top-[85px] left-2 w-2 h-2.5 rounded-sm bg-[#5C5A55] z-0 hidden lg:block" />
-        <div className="absolute top-[85px] right-2 w-2 h-2.5 rounded-sm bg-[#5C5A55] z-0 hidden lg:block" />
+        {/* Terminal fixtures on edges */}
+        <div className="absolute top-[50px] sm:top-[54px] left-3 w-2.5 h-2 rounded-sm bg-[#5C5A55] z-0 hidden lg:block" />
+        <div className="absolute top-[50px] sm:top-[54px] right-3 w-2.5 h-2 rounded-sm bg-[#5C5A55] z-0 hidden lg:block" />
 
         {/* Draggable Rail Track with Natural Inertia */}
         <motion.div
@@ -103,15 +145,15 @@ export function ClothingRailSection() {
           dragTransition={{ bounceStiffness: 280, bounceDamping: 26, power: 0.16 }}
           onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
-          className="flex items-start space-x-8 sm:space-x-14 px-8 sm:px-20 cursor-grab active:cursor-grabbing relative z-10 py-4 w-max touch-pan-y will-change-transform"
+          className="flex items-start space-x-4 sm:space-x-6 px-6 sm:px-16 cursor-grab active:cursor-grabbing relative z-10 py-2 w-max touch-pan-y will-change-transform"
         >
-          {GARMENTS_DATA.map((garment, index) => {
+          {EXTENDED_RAIL_DATA.map((garment, index) => {
             const isHovered = hoveredGarmentId === garment.id;
             const isSelected = activeGarment.id === garment.id;
 
             return (
               <motion.div
-                key={garment.id}
+                key={`${garment.id}-${index}`}
                 onClick={() => handleGarmentClick(garment)}
                 onMouseEnter={() => {
                   setHoveredGarmentId(garment.id);
@@ -120,7 +162,7 @@ export function ClothingRailSection() {
                 onMouseLeave={() => setHoveredGarmentId(null)}
                 animate={{
                   y: isHovered && !shouldReduceMotion ? -6 : 0,
-                  rotate: isHovered && !shouldReduceMotion ? (index % 2 === 0 ? 1.4 : -1.4) : 0,
+                  rotate: isHovered && !shouldReduceMotion ? (index % 2 === 0 ? 1.5 : -1.5) : 0,
                 }}
                 transition={{
                   type: "spring",
@@ -128,72 +170,54 @@ export function ClothingRailSection() {
                   damping: 24,
                 }}
                 style={{ transformOrigin: "top center" }}
-                className="group relative flex flex-col items-center shrink-0"
+                className="group relative flex flex-col items-center shrink-0 cursor-pointer"
               >
-                {/* 1. Realistic Metal Hanger Hook resting on the cable */}
-                <div className="relative w-6 h-8 flex items-center justify-center -mb-1">
+                {/* 1. Sleek Minimal Metallic Wire Loop Hook resting on cable */}
+                <div className="relative w-4 h-6 flex items-center justify-center -mb-1">
                   <svg
-                    viewBox="0 0 24 32"
+                    viewBox="0 0 16 24"
                     fill="none"
                     className="w-full h-full text-neutral-600 drop-shadow-sm"
                   >
                     <path
-                      d="M12 2 C8 2 7 6 7 9 C7 12 11 14 12 16 L12 28"
+                      d="M8 2 C5 2 4 5 4 7 C4 9 7 11 8 13 L8 22"
                       stroke="currentColor"
-                      strokeWidth="2.5"
+                      strokeWidth="2"
                       strokeLinecap="round"
                     />
                   </svg>
                 </div>
 
-                {/* 2. Curved Luxury Beechwood Hanger Beam */}
-                <div className="relative w-36 sm:w-44 h-7 -mb-2 z-20">
-                  <svg
-                    viewBox="0 0 160 28"
-                    className="w-full h-full drop-shadow-[0_2px_4px_rgba(0,0,0,0.18)]"
-                  >
-                    <path
-                      d="M80 2 C72 2 68 8 68 12 L4 25 C1 26 1 28 3 28 L157 28 C159 28 159 26 156 25 L92 12 C92 8 88 2 80 2 Z"
-                      fill="#3D291D"
-                    />
-                    <path
-                      d="M80 4 C74 4 70 9 70 12 L12 25 L148 25 L90 12 C90 9 86 4 80 4 Z"
-                      fill="#5A3D2B"
-                      opacity="0.6"
-                    />
-                  </svg>
-                </div>
-
-                {/* 3. Dangling Minimal Price Tag (Reference 06.0s price tag under hanger) */}
-                <div className="relative z-30 -mt-0.5 mb-2 flex flex-col items-center">
-                  <div className="w-[1px] h-3 bg-neutral-400" />
+                {/* 2. Dangling Crisp White Price Ticket (Matches Reference Image 5) */}
+                <div className="relative z-30 -mt-0.5 mb-1 flex flex-col items-center">
+                  <div className="w-[1px] h-2 bg-neutral-400" />
                   <span
-                    className={`px-2 py-0.5 rounded text-[10px] font-mono tracking-wider transition-all duration-200 shadow-sm ${
+                    className={`px-1.5 py-0.5 rounded text-[9px] font-mono tracking-wider transition-all duration-200 shadow-sm ${
                       isHovered || isSelected
                         ? "bg-brand-text text-white shadow-md scale-105"
-                        : "bg-white/95 border border-brand-border text-brand-text font-medium"
+                        : "bg-white border border-neutral-300 text-brand-text font-semibold"
                     }`}
                   >
                     {garment.priceTag}
                   </span>
                 </div>
 
-                {/* 4. Isolated Transparent Hanging Garment Asset (NO CARDS, NO BOXES) */}
-                <div className="relative w-52 sm:w-64 md:w-72 h-60 sm:h-72 md:h-80 flex items-start justify-center">
+                {/* 3. Authentic Compact Hanging Garment Silhouette */}
+                <div className="relative w-28 sm:w-32 md:w-36 h-48 sm:h-56 md:h-60 flex items-start justify-center">
                   <Image
                     src={garment.imageFront}
                     alt={garment.name}
-                    width={400}
-                    height={700}
-                    priority={index < 4}
-                    className="w-auto h-full object-contain object-top drop-shadow-[0_14px_24px_rgba(0,0,0,0.08)] transition-transform duration-300 group-hover:scale-102"
-                    sizes="(max-width: 640px) 210px, (max-width: 1024px) 260px, 300px"
+                    width={320}
+                    height={600}
+                    priority={index < 8}
+                    className="w-auto h-full object-contain object-top drop-shadow-[0_8px_18px_rgba(0,0,0,0.07)] transition-transform duration-300 group-hover:scale-103"
+                    sizes="(max-width: 640px) 120px, (max-width: 1024px) 140px, 160px"
                   />
 
                   {/* Gentle Floating Inspect Badge on Hover */}
-                  <div className="absolute inset-x-0 bottom-4 flex justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
-                    <span className="px-3 py-1 bg-brand-text/90 backdrop-blur-sm text-[10px] font-sans uppercase tracking-widest text-white rounded-full shadow-lg">
-                      Inspect Silhouette
+                  <div className="absolute inset-x-0 bottom-2 flex justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+                    <span className="px-2.5 py-0.5 bg-brand-text/90 backdrop-blur-sm text-[9px] font-sans uppercase tracking-widest text-white rounded-full shadow-lg">
+                      Inspect
                     </span>
                   </div>
                 </div>
@@ -205,28 +229,28 @@ export function ClothingRailSection() {
         {/* Floating Discrete Rail Navigation Controls */}
         <button
           onClick={() => handleStep("left")}
-          className="absolute left-2 sm:left-6 top-[130px] -translate-y-1/2 w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-white/95 border border-brand-border shadow-luxury flex items-center justify-center text-brand-text hover:text-brand-accent hover:scale-105 transition-all z-30"
+          className="absolute left-2 sm:left-6 top-[120px] -translate-y-1/2 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/95 border border-brand-border shadow-luxury flex items-center justify-center text-brand-text hover:text-brand-accent hover:scale-105 transition-all z-30"
           aria-label="Previous garments"
         >
-          <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+          <ChevronLeft className="w-4 h-4" />
         </button>
 
         <button
           onClick={() => handleStep("right")}
-          className="absolute right-2 sm:right-6 top-[130px] -translate-y-1/2 w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-white/95 border border-brand-border shadow-luxury flex items-center justify-center text-brand-text hover:text-brand-accent hover:scale-105 transition-all z-30"
+          className="absolute right-2 sm:right-6 top-[120px] -translate-y-1/2 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/95 border border-brand-border shadow-luxury flex items-center justify-center text-brand-text hover:text-brand-accent hover:scale-105 transition-all z-30"
           aria-label="Next garments"
         >
-          <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
+          <ChevronRight className="w-4 h-4" />
         </button>
       </div>
 
-      {/* Bottom Editorial Microcopy & Active Silhouette Spotlight (Matches Reference 06.0s) */}
-      <div className="max-w-7xl mx-auto px-5 sm:px-10 lg:px-12 mt-8 sm:mt-10 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-6 border-t border-brand-border/60 pt-6">
-        {/* Bottom Left: Selected Garment Specs */}
+      {/* Editorial Text on Right & Active Garment Summary (Matches Reference Image 5) */}
+      <div className="max-w-7xl mx-auto px-5 sm:px-10 lg:px-12 mt-4 sm:mt-6 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-6 border-t border-brand-border/60 pt-4">
+        {/* Left: Active Garment Specs */}
         <div>
           <div className="flex items-center space-x-2">
             <span className="text-[10px] font-mono tracking-luxury uppercase text-brand-accent font-semibold block">
-              SILHOUETTE {String(activeGarment.hangerIndex).padStart(2, "0")} / 12
+              SILHOUETTE {String(activeGarment.hangerIndex).padStart(2, "0")} / 16
             </span>
             <span className="text-neutral-300">•</span>
             <span className="text-[10px] font-mono tracking-wider uppercase text-brand-muted">
@@ -234,51 +258,41 @@ export function ClothingRailSection() {
             </span>
           </div>
 
-          <h3 className="font-serif text-2xl sm:text-3xl font-medium text-brand-text mt-1">
+          <h3 className="font-serif text-xl sm:text-2xl font-medium text-brand-text mt-0.5">
             {activeGarment.name}
           </h3>
 
-          <div className="flex items-center space-x-3 mt-1.5">
-            <p className="font-mono text-sm font-semibold text-brand-text">
-              ${activeGarment.price.toFixed(2)}
-            </p>
-            <span className="text-neutral-300">•</span>
-            <p className="text-xs text-brand-muted font-sans">
-              {activeGarment.color}
-            </p>
-          </div>
+          <p className="text-xs text-brand-muted mt-1 font-sans max-w-md hidden sm:block">
+            {activeGarment.description}
+          </p>
         </div>
 
-        {/* Bottom Right: Brand Statement & CTA */}
-        <div className="sm:text-right max-w-sm">
-          <p className="text-xs text-brand-text leading-relaxed font-sans font-normal">
-            Crafted in heavyweight fleece. Cut oversized. Made to last.
+        {/* Right Side Editorial Copy (Exact match from Reference Image 5) */}
+        <div className="text-left sm:text-right">
+          <p className="text-xs font-serif text-brand-text leading-relaxed font-normal">
+            Crafted in heavyweight fleece.
           </p>
-          <div className="mt-2.5 flex items-center sm:justify-end space-x-4">
-            <button
-              onClick={() => setModalGarment(activeGarment)}
-              className="text-xs font-mono uppercase tracking-luxury text-brand-text hover:text-brand-accent font-semibold flex items-center space-x-1"
-            >
-              <span>Quick View</span>
-              <Sparkles className="w-3.5 h-3.5 text-brand-accent" />
-            </button>
-            <span className="text-neutral-300">•</span>
-            <Link
-              href="/shop?category=men"
-              className="inline-flex items-center space-x-1.5 text-xs font-mono uppercase tracking-luxury text-brand-accent hover:text-brand-dark font-medium group"
-            >
-              <span>Shop All</span>
-              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-            </Link>
-          </div>
+          <p className="text-xs font-serif text-brand-muted leading-relaxed font-normal">
+            Cut oversized. Made to last.
+          </p>
+
+          <Link
+            href="/shop"
+            className="inline-flex items-center space-x-1.5 text-xs font-mono uppercase tracking-luxury text-brand-text hover:text-brand-accent font-semibold mt-2 group"
+          >
+            <span>Shop the Collection</span>
+            <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+          </Link>
         </div>
       </div>
 
-      {/* Quick View Modal (Reference 07.5s - 11.0s) */}
-      <GarmentQuickViewModal
-        garment={modalGarment}
-        onClose={() => setModalGarment(null)}
-      />
+      {/* Suspended Isolated Quick-View Modal */}
+      {modalGarment && (
+        <GarmentQuickViewModal
+          garment={modalGarment}
+          onClose={() => setModalGarment(null)}
+        />
+      )}
     </section>
   );
 }
