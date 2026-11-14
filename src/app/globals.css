@@ -31,7 +31,7 @@ body {
   color: #F8F7F4;
 }
 
-/* Custom subtle scrollbar */
+/* Custom subtle luxury scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -50,7 +50,19 @@ body {
   background: #B5B2A9;
 }
 
-/* Luxury utilities */
+/* Global reduced-motion support for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Luxury utilities & GPU layers */
 @layer utilities {
   .text-balance {
     text-wrap: balance;
@@ -61,5 +73,14 @@ body {
   .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
+  }
+  .gpu-layer {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+    will-change: transform;
+  }
+  .touch-pan-y {
+    touch-action: pan-y;
   }
 }

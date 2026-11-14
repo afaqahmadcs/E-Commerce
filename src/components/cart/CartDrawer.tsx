@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { X, Trash2, ArrowRight, ShoppingBag, Truck } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { useCartStore } from "@/store/useCartStore";
 
 export function CartDrawer() {
@@ -20,6 +20,7 @@ export function CartDrawer() {
 
   const subtotal = getCartTotal();
   const itemCount = getItemCount();
+  const shouldReduceMotion = useReducedMotion();
   const freeShippingThreshold = 200;
   const progressPercent = Math.min((subtotal / freeShippingThreshold) * 100, 100);
   const remainingForFree = Math.max(freeShippingThreshold - subtotal, 0);
@@ -50,12 +51,16 @@ export function CartDrawer() {
             className="absolute inset-0 bg-black/50 backdrop-blur-sm"
           />
 
-          <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
+          <div className="fixed inset-y-0 right-0 max-w-full flex pl-6 sm:pl-10">
             <motion.div
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              transition={{ type: "spring", damping: 28, stiffness: 280 }}
+              initial={shouldReduceMotion ? { opacity: 0 } : { x: "100%" }}
+              animate={shouldReduceMotion ? { opacity: 1 } : { x: 0 }}
+              exit={shouldReduceMotion ? { opacity: 0 } : { x: "100%" }}
+              transition={
+                shouldReduceMotion
+                  ? { duration: 0.1 }
+                  : { type: "spring", damping: 30, stiffness: 300 }
+              }
               className="w-screen max-w-md bg-[#F8F7F4] shadow-2xl flex flex-col border-l border-brand-border"
             >
               {/* Drawer Header */}
