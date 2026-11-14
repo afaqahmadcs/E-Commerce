@@ -1,132 +1,257 @@
-# AFAQ SUPPLY — THE ART OF EVERYDAY STYLE
+<div align="center">
 
-A luxury, commercial-grade fashion e-commerce platform inspired by the visual language, page composition, product presentation, and fluid interaction physics of high-end international fashion retailers.
+# AFAQ SUPPLY
+### *THE ART OF EVERYDAY STYLE.*
 
-Built with **Next.js 15 (App Router)**, **TypeScript**, **Tailwind CSS**, **Zustand**, and **Supabase PostgreSQL**.
+<p align="center">
+  <strong>A World-Class Editorial Luxury Fashion & Streetwear E-Commerce Platform</strong>
+</p>
 
----
+[![Next.js](https://img.shields.io/badge/Next.js-15.1.0-black?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![Framer Motion](https://img.shields.io/badge/Framer_Motion-11.0-black?style=for-the-badge&logo=framer&logoColor=white)](https://www.framer.com/motion/)
+[![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-C66B39?style=for-the-badge)](LICENSE)
 
-## 1. Key Architectural Features & Reference Video Implementation
+<br />
 
-### 1.1 "Try the Look" Multi-Model Runway (00.0s – 05.5s)
-- **Interactive Runway:** 6 fashion models arranged horizontally across a neutral warm ivory stage (`#F8F7F4`).
-- **Interactive Hotspots:** Pulsing tactile pins over individual outfit pieces (crewnecks, vintage wash denim, archival sneakers).
-- **Model Isolation Zoom:** Clicking any model isolates them with smooth zoom and focal clarity.
-- **"In This Look" Slide-out Drawer:** Displays worn components with individual prices, bundle discount calculations (*"Save 10% when buying full outfit"*), and single-click `Add full look to bag →` execution.
-- **Interactive Timeline Scrubber:** Horizontal navigation track (`01` through `06`).
-
-### 1.2 Suspended Horizontal Clothing Rail Collection Strip (05.5s – 08.0s)
-- **Tension Rail Physics:** Garments (heavyweight hoodies, boxy tees, chore jackets, tailored trousers) suspended along a steel cable.
-- **Hanger Price Tags:** Every wooden hanger features an authentic dangling price ticket.
-- **Active Garment Tracker:** Real-time bottom-left name & price display (`Hoodie / $199.00`).
-- **Editorial Brand Statement:** Bottom-right typography (*"Crafted in heavyweight fleece. Cut oversized. Made to last."* with `Shop the Collection →`).
-- **Quick-View Modal:** Clicking any piece triggers an isolated hanging quick-view modal with Front/Back angle toggles, size selection pills, and instant add-to-bag feedback.
-
-### 1.3 3D Perspective Footwear Gallery (11.5s – 13.5s)
-- **Diagonal Spatial Trajectory:** Floating footwear positioned along an ascending 3D perspective path.
-- **Perspective Slider:** Center-bottom scrub track with draggable indicators.
-- **European Shoe Size Matrix:** Integrated EU sizes `40` through `46`.
-
-### 1.4 Featured Sneaker Detail & Shopping Interface (13.5s – 16.5s)
-- **Large Floating Hero Sneaker:** High-resolution floating sneaker with realistic contact drop shadow.
-- **Colorway Thumbnail Carousel:** Horizontally aligned colorway cards with active outline pill styling.
-- **State-Driven Add-to-Bag Button:**
-  - Disabled state: Greyed out *"Select a size"* until an EU size is picked.
-  - Active state: Black button *"Add to bag"*.
-  - Purchase state: Transitions into signature restrained burnt orange (`#C66B39`) with *"Added to bag"* and reveals *"View bag →"*.
+<p align="center">
+  <a href="#-signature-experiences-from-reference">Signature Experiences</a> •
+  <a href="#-full-site-architecture-18-routes">All 18 Routes</a> •
+  <a href="#-design-system--typography">Design System</a> •
+  <a href="#-database-architecture">Database Schema</a> •
+  <a href="#-getting-started">Quick Start</a> •
+  <a href="#-project-structure">Architecture</a> •
+  <a href="#-author">Author</a>
+</p>
 
 ---
 
-## 2. Complete Website Structure (All 16 Routes Operational)
+</div>
 
-1. `/` — Homepage (Try The Look, Clothing Rail, Featured Sneaker, 3D Wave, Category Grid, Curated Drops, Editorial Manifesto, Community Grid)
-2. `/shop` — Complete catalog with live category tabs, price range filters, size filters, and sorting
-3. `/collections/[slug]` — Dynamic collections (`new-arrivals`, `streetwear-essentials`, `curated-footwear`, `luxury-knitwear`, `tailored-street`)
-4. `/products/[slug]` — Product detail page with multi-angle gallery, color/size selection, live inventory, size guide modal, materials & care accordion, and related products
-5. `/search` — Full-text search across silhouettes, fabrics, and categories with instant suggestion pills
-6. `/cart` — Shopping bag page with line item removal, quantity increment, and free shipping calculation
-7. `/checkout` — Production-grade multi-step checkout with address validation, payment selector (Cash on Delivery, Bank Remittance, Online Card/Gateway), and order generation
-8. `/account` — Customer account portal, profile overview, saved addresses, and saved wishlist pieces
-9. `/account/orders` — Order history tracking pipeline with order status badges (`Confirmed`, `Processing`, `Shipped`, `Delivered`)
-10. `/about` — Brand story, atelier philosophy, Portuguese fleece milling, and Japanese denim provenance
-11. `/contact` — Client concierge support with direct advisory channels and inquiry dispatch form
-12. `/faq` — Comprehensive luxury fashion FAQ covering sizing, shipping, care, and returns
-13. `/shipping-returns` — Global express logistics, customs duties transparency, and 30-day return policy
-14. `/privacy-policy` — GDPR and CCPA-compliant privacy policy
-15. `/terms` — Commercial terms and conditions
-16. `/admin` — Protected administration dashboard:
-    - **Overview:** Total Revenue, Orders count, Active Patrons, Silhouettes count, Recent dispatches
-    - **Products:** Complete CRUD, image URL management, category assignment, pricing, and live inventory
-    - **Orders:** Order list, customer details, payment method, and live status lifecycle updates
-    - **Collections:** Manage drops, associate products, and inspect live previews
-    - **Promotions:** Live announcement bar editor, discount codes, and free shipping threshold config
-    - **Settings:** Store identity, currency, contact email, and gateway parameters
+## ✦ Overview
+
+**AFAQ SUPPLY** is a luxury digital flagship and streetwear e-commerce platform built to recreate the visual language, editorial typography, spatial physics, and fluid product presentation of premier international fashion houses.
+
+Inspired directly by high-end runway interactive experiences, every micro-interaction—from model isolation zooms to suspended clothing rail physics and 3D perspective footwear trajectories—was engineered with commercial-grade scalability and sub-second performance.
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│  AFAQ SUPPLY ATELIER                                                   │
+│  "THE ART OF EVERYDAY STYLE"                                           │
+│                                                                        │
+│  [TRY THE LOOK] ────► [CLOTHING RAIL] ────► [3D SNEAKER WAVE]         │
+│         │                    │                      │                  │
+│         ▼                    ▼                      ▼                  │
+│  Outfit Bundle        Hanger Quick-View      Featured Sneaker Matrix   │
+│  (Save 10% Bundle)    (Front/Back Angles)    (State-driven Add to Bag) │
+└────────────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
-## 3. Technology Stack & Design System
+## ✦ Signature Experiences (Recreating Reference Video)
 
-### 3.1 Design Tokens
-- **Background:** `#F8F7F4` (Warm Ivory / Off-White)
-- **Primary Text:** `#151515` (Deep Charcoal Black)
-- **Secondary Text:** `#777777` (Muted Warm Grey)
-- **Borders & Dividers:** `#E8E6E1` (Hairline Warm Border)
-- **Card Background:** `#F0EFEB` (Warm Tinted Surface)
-- **Accent Color:** `#C66B39` (Restrained Burnt Orange for pivotal checkout/added interactions)
-- **Dark Sections:** `#171717` (Rich Obsidian Black)
+AFAQ SUPPLY translates the visual grammar of the reference recording into functional React & Next.js architectures:
 
-### 3.2 Typography
-- **Headings:** `Playfair Display` (Editorial Serif)
-- **Body & Controls:** `Inter` (Clean Modern Sans-Serif)
-- **Specs & Microcopy:** `Geist Mono` / Monospace uppercase tracking
+### 1. `Try the Look.` — Multi-Model Interactive Runway (00.0s – 05.5s)
+* **Horizontal Model Lineup:** Six complete outfits styled head-to-toe on an expansive warm ivory runway.
+* **Tactile Hotspots:** Pulsing interactive pins placed over specific pieces (knitwear, wide denim, sneakers) that reveal item specs on hover.
+* **Model Isolation Zoom:** Clicking any model isolates them with smooth camera zoom and depth-of-field focus.
+* **"In This Look" Slide-Out Drawer:** Displays all worn items with individual prices, real-time 10% bundle discount calculation (*"Complete the look: Save 10%"*), and a single-click `Add full look to bag →` CTA.
+* **Timeline Scrubber:** Integrated pagination track (`← 01 02 03 04 Studio Day 05 06 →`).
 
----
+### 2. Suspended Horizontal Clothing Rail (05.5s – 08.0s)
+* **Tension Cable Physics:** 14 garments (550 GSM hoodies, chore jackets, tailored trousers, overshirts) suspended along a minimal steel wire.
+* **Dangling Hanger Price Tags:** Every wooden hanger features an authentic hanging price tag ticket.
+* **Active Garment Tracker:** Real-time bottom-left metadata (`Hoodie / $199.00`).
+* **Editorial Microcopy:** Bottom-right manifesto: *"Crafted in heavyweight fleece. Cut oversized. Made to last."* with `Shop the Collection →`.
+* **Quick-View Modal:** Clicking any piece triggers an isolated hanging quick-view modal with Front/Back angle toggles, size pills (`S`, `M`, `L`, `XL`), and instant add-to-cart feedback.
 
-## 4. Supabase PostgreSQL Database Setup
+### 3. 3D Perspective Footwear Gallery (11.5s – 13.5s)
+* **Ascending 3D Trajectory:** Floating footwear arranged along a diagonal spatial perspective curve.
+* **Interactive Perspective Scrubber:** Drag/slide control with dynamic depth-sorting and opacity attenuation.
+* **Shoe Size Matrix:** Direct access to European sizes `40` through `46`.
+* **Watermark Branding:** Bold anchored `OBSESSED` typography.
 
-The database schema is fully normalized and located in `supabase/schema.sql`.
-
-### 4.1 Schema Tables
-1. `profiles` — Extends `auth.users` with customer details, role (`customer`, `admin`), and phone.
-2. `addresses` — Multi-address support with default shipping selection.
-3. `categories` & `collections` — Normalized hierarchical taxonomy.
-4. `products` — Core catalog table with prices, status, tags, and category FK.
-5. `product_variants` — Normalized SKUs, colors, sizes, and variant-specific inventory quantities.
-6. `product_images` — Multi-angle product imagery gallery.
-7. `orders` & `order_items` — Audited order records with customer snapshots and payment references.
-8. `inventory_logs` — Stock adjustment ledger.
-9. `discount_codes` — Promotional codes and percentage/fixed discounts.
-10. `store_settings` — Key-value JSON store for configurable announcement bar and shipping thresholds.
-
-### 4.2 Applying the Migration
-1. Log in to your [Supabase Dashboard](https://supabase.com).
-2. Open the **SQL Editor** tab.
-3. Paste the contents of `supabase/schema.sql` and run the script.
-4. Copy your project URL and `anon` key into `.env.local`:
-   ```bash
-   NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
-   ```
-
-*Note: The application includes intelligent fallback resilience. If Supabase credentials are not provided, all catalog, cart, and order functionalities seamlessly run offline in local state without crashing.*
+### 4. Featured Sneaker Shopping Interface (13.5s – 16.5s)
+* **Floating Hero Sneaker:** High-res floating sneaker with soft breathing contact shadow.
+* **Colorway Carousel:** Outlined thumbnail cards switching colorways with smooth crossfade.
+* **State-Driven Add-to-Bag Button:**
+  1. *Disabled State:* Greyed-out `"Select a size"` until an EU shoe size is chosen.
+  2. *Active State:* Solid black `"Add to bag"`.
+  3. *Purchase State:* Transitions to signature restrained burnt orange (`#C66B39`) with `"Added to bag"` and reveals `"View bag →"`.
 
 ---
 
-## 5. Getting Started & Development
+## ✦ Full Site Architecture (All 18 Routes Pre-Rendered)
 
-### 5.1 Installation
+Every single route is built with responsive mobile & desktop UX, accessible semantic HTML, and zero placeholder links:
+
+```
+├── / ......................... Flagship Homepage (Runway, Rail, Sneaker Matrix, Drops)
+├── /shop ..................... Complete Catalog with Category & Size Filters
+├── /collections/[slug] ....... Curated Drops (New Arrivals, Streetwear, Footwear, Knitwear)
+├── /products/[slug] .......... Product Detail (Gallery, Zoom, Variants, Size Guide, Tabs)
+├── /search ................... Real-Time Search across Silhouettes & Materials
+├── /cart ..................... Shopping Bag with Free Shipping Meter ($200 Threshold)
+├── /checkout ................. Multi-Step Checkout (Address, COD, Wire, Gateway Validation)
+├── /account .................. Client Portal (Profile, Saved Addresses, Wishlist)
+├── /account/orders ........... Order History Pipeline (Confirmed → Shipped → Delivered)
+├── /about .................... Brand Manifesto, Portuguese Fleece & Japanese Denim Mills
+├── /contact .................. Client Concierge & Flagship SoHo Showroom Inquiries
+├── /faq ...................... Sizing, Care, Global Shipping & Returns FAQ
+├── /shipping-returns ......... Global Logistics & 30-Day Effortless Return Guidelines
+├── /privacy-policy ........... GDPR & CCPA Data Autonomy Policy
+├── /terms .................... Commercial Terms & Intellectual Property
+├── /admin .................... Protected Store Administration Dashboard
+│   ├── Overview .............. Revenue, Orders, Patrons & Silhouette Analytics
+│   ├── Products .............. Full Product CRUD, Variants & Live Inventory
+│   ├── Orders ................ Order Fulfillment Lifecycle & Status Updater
+│   ├── Collections ........... Manage Drops & Product Associations
+│   ├── Promotions ............ Live Global Announcement Bar Editor
+│   └── Settings .............. Brand Identity, Shipping Fees & Currency
+├── /sitemap.xml .............. Dynamic SEO Search Engine Index
+└── /robots.txt ............... Automated Crawler Directives
+```
+
+---
+
+## ✦ Design System & Color Tokens
+
+AFAQ SUPPLY adheres strictly to an understated international luxury aesthetic:
+
+| Token | Hex Code | Visual Application |
+|---|---|---|
+| **Base Background** | `#F8F7F4` | Warm ivory canvas creating an airy art-gallery feel |
+| **Primary Text** | `#151515` | High-contrast charcoal/off-black for headlines & buttons |
+| **Secondary Text** | `#777777` | Neutral stone grey for specifications & metadata |
+| **Borders** | `#E8E6E1` | Fine hairline dividers maintaining structure |
+| **Card Surface** | `#F0EFEB` | Warm tinted card background |
+| **Accent Color** | `#C66B39` | **Restrained Burnt Orange** reserved for purchase feedback |
+| **Dark Obsidian** | `#171717` | Editorial campaign sections & luxury footer |
+
+### Typography Hierarchy
+* **Headlines:** `Playfair Display` (Classic editorial high-fashion serif)
+* **Interface & Body:** `Inter` / `Geist` (Modern, readable Swiss sans-serif)
+* **Specs & Numbers:** `Geist Mono` (Monospaced uppercase tracking for sizes, SKUs, and prices)
+
+---
+
+## ✦ Database Architecture (Supabase PostgreSQL)
+
+Located in [`supabase/schema.sql`](supabase/schema.sql), the database consists of 19 normalized tables:
+
+```sql
+profiles                  ──► Extends auth.users with roles & contact
+addresses                 ──► Customer multi-address book
+categories & collections  ──► Hierarchical collection taxonomy
+products                  ──► Core catalog with pricing & statuses
+product_variants          ──► Normalized SKUs, colors, sizes, stock
+product_images            ──► Multi-angle photography gallery
+orders & order_items      ──► Transaction ledger with snapshots
+inventory_logs            ──► Audited stock movements
+discount_codes            ──► Percentage & fixed promotion engine
+store_settings            ──► Dynamic config (Announcement bar, thresholds)
+```
+
+* **Security:** Row Level Security (RLS) policies enforce customer data isolation while granting full administration capabilities to staff roles.
+* **Resilience:** If Supabase credentials are not provided during development, the application automatically uses an offline-resilient local state without crashing.
+
+---
+
+## ✦ Getting Started
+
+### Prerequisites
+- Node.js 18.17 or later
+- npm or pnpm or yarn
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/afaqahmadcs/E-Commerce.git
+cd E-Commerce
+```
+
+### 2. Install Dependencies
 ```bash
 npm install
 ```
 
-### 5.2 Development Server
+### 3. Environment Variables
+Copy `.env.example` to `.env.local`:
+```bash
+cp .env.example .env.local
+```
+Add your Supabase credentials (optional for local offline browsing):
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+```
+
+### 4. Run Development Server
 ```bash
 npm run dev
 ```
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+Open [http://localhost:3000](http://localhost:3000) to view the storefront.  
+Open [http://localhost:3000/admin](http://localhost:3000/admin) to view the admin management dashboard.
 
-### 5.3 Production Build & Start
+### 5. Production Build
 ```bash
 npm run build
 npm start
 ```
+
+---
+
+## ✦ Project Structure
+
+```
+├── public/                     # Static assets and icons
+├── src/
+│   ├── app/                    # Next.js 15 App Router
+│   │   ├── about/              # Brand story
+│   │   ├── account/            # Customer profile & orders
+│   │   ├── admin/              # Staff management dashboard
+│   │   ├── cart/               # Full shopping bag page
+│   │   ├── checkout/           # Multi-step checkout flow
+│   │   ├── collections/        # Dynamic collection routes
+│   │   ├── contact/            # Client concierge
+│   │   ├── faq/                # FAQ accordion
+│   │   ├── products/           # Product detail page
+│   │   ├── search/             # Catalog search
+│   │   ├── shipping-returns/   # Logistics & return policies
+│   │   ├── shop/               # Catalog with filters
+│   │   ├── layout.tsx          # Root layout with Header & Footer
+│   │   ├── page.tsx            # Signature Flagship Homepage
+│   │   ├── robots.ts           # SEO Crawler rules
+│   │   └── sitemap.ts          # Automated sitemap
+│   ├── components/
+│   │   ├── cart/               # Cart drawer with spring animations
+│   │   ├── home/               # TryTheLook, ClothingRail, Sneakers, etc.
+│   │   ├── layout/             # Header, Footer, AnnouncementBar
+│   │   ├── product/            # ProductDetailClient, SizeGuide
+│   │   └── search/             # Instant search overlay
+│   ├── data/                   # Outfits, Garments, Sneakers & Products
+│   ├── lib/                    # Supabase client & utilities
+│   ├── store/                  # Persistent Zustand cart & wishlist store
+│   └── types/                  # TypeScript interface definitions
+├── supabase/
+│   └── schema.sql              # Normalized PostgreSQL schema + RLS
+└── tailwind.config.ts          # Luxury design tokens & typography
+```
+
+---
+
+## ✦ Author
+
+**Afaq Ahmad**  
+- **GitHub:** [@afaqahmadcs](https://github.com/afaqahmadcs)  
+- **Project Repository:** [https://github.com/afaqahmadcs/E-Commerce](https://github.com/afaqahmadcs/E-Commerce)
+
+---
+
+<div align="center">
+  <sub>Designed & Developed with architectural precision. © 2026 AFAQ SUPPLY CO. All rights reserved.</sub>
+</div>
