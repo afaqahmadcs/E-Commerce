@@ -1,0 +1,9 @@
+export { TryTheLookHero } from "@/components/home/TryTheLookHero";
+export { ClothingRailSection } from "@/components/home/ClothingRailSection";
+export { FeaturedSneakerSection } from "@/components/home/FeaturedSneakerSection";
+export { SneakerPerspectiveSection } from "@/components/home/SneakerPerspectiveSection";
+export { CategoryGrid } from "@/components/home/CategoryGrid";
+export { CuratedDrops } from "@/components/home/CuratedDrops";
+export { BrandEditorial } from "@/components/home/BrandEditorial";
+export { CommunityGrid } from "@/components/home/CommunityGrid";
+export { GarmentQuickViewModal } from "@/components/home/GarmentQuickViewModal";
