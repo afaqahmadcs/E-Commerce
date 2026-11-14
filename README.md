@@ -4,7 +4,7 @@
 ### *THE ART OF EVERYDAY STYLE.*
 
 <p align="center">
-  <strong>A World-Class Editorial Luxury Fashion & Streetwear E-Commerce Platform</strong>
+  <strong>A World-Class Editorial Luxury Fashion & Streetwear Flagship E-Commerce Platform</strong>
 </p>
 
 [![Next.js](https://img.shields.io/badge/Next.js-15.1.0-black?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
@@ -17,12 +17,12 @@
 <br />
 
 <p align="center">
-  <a href="#-signature-experiences-from-reference">Signature Experiences</a> •
+  <a href="#-signature-experiences-from-reference-video">Signature Experiences</a> •
+  <a href="#-phase-1--try-the-look-interactive-runway-verified">Phase 1 Runway</a> •
+  <a href="#-phase-2--animated-hanging-clothing-rail-verified">Phase 2 Clothing Rail</a> •
+  <a href="#-git-branch-architecture--contributions">Git Workflow</a> •
   <a href="#-full-site-architecture-18-routes">All 18 Routes</a> •
-  <a href="#-design-system--typography">Design System</a> •
-  <a href="#-database-architecture">Database Schema</a> •
   <a href="#-getting-started">Quick Start</a> •
-  <a href="#-project-structure">Architecture</a> •
   <a href="#-author">Author</a>
 </p>
 
@@ -34,54 +34,105 @@
 
 **AFAQ SUPPLY** is a luxury digital flagship and streetwear e-commerce platform built to recreate the visual language, editorial typography, spatial physics, and fluid product presentation of premier international fashion houses.
 
-Inspired directly by high-end runway interactive experiences, every micro-interaction—from model isolation zooms to suspended clothing rail physics and 3D perspective footwear trajectories—was engineered with commercial-grade scalability and sub-second performance.
+Inspired directly by the high-end runway and interactive retail experience recorded in `reference/reference-video.mp4`, every micro-interaction—from model isolation zooms to suspended clothing rail physics and 3D perspective footwear trajectories—was engineered with commercial-grade scalability and sub-second performance.
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
-│  AFAQ SUPPLY ATELIER                                                   │
+│  AFAQ SUPPLY FLAGSHIP EXPERIENCE                                       │
 │  "THE ART OF EVERYDAY STYLE"                                           │
 │                                                                        │
-│  [TRY THE LOOK] ────► [CLOTHING RAIL] ────► [3D SNEAKER WAVE]         │
-│         │                    │                      │                  │
-│         ▼                    ▼                      ▼                  │
-│  Outfit Bundle        Hanger Quick-View      Featured Sneaker Matrix   │
-│  (Save 10% Bundle)    (Front/Back Angles)    (State-driven Add to Bag) │
+│  [PHASE 1: RUNWAY] ────► [PHASE 2: CLOTHING RAIL] ────► [PHASE 3: SNEAKER]
+│         │                         │                             │      │
+│         ▼                         ▼                             ▼      │
+│  Outfit Bundle Explorer    Suspended Hangers & Cable     Ascending Wave│
+│  (Framer 700ms Spring)     (Quick-View & Inertia Drag)   (Matrix Size) │
 └────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## ✦ Signature Experiences (Recreating Reference Video)
+## ✦ Signature Experiences (From Reference Video)
 
-AFAQ SUPPLY translates the visual grammar of the reference recording into functional React & Next.js architectures:
+### 1. `TRY THE LOOK.` — Multi-Model Interactive Runway (00.0s – 05.5s)
+* **Horizontal Model Lineup:** Six complete full-body silhouettes styled head-to-toe on an expansive warm ivory runway with realistic contact floor drop shadows.
+* **Framer Motion 700ms Physics:** Center model prominently scales up while adjacent models smoothly glide and attenuate scale.
+* **Docked "In This Look" Panel:** Real-time synchronized outfit breakdown featuring multiple individual garments with live pricing and a 10% bundle discount calculator.
+* **Isolated Mode Inspection:** Smooth zoom transition into isolated outfit inspection with instant return-to-lineup mechanics.
+* **Single-Click Bundle Checkout:** "Add full look to bag" adds all outfit components directly into the global shopping bag.
 
-### 1. `Try the Look.` — Multi-Model Interactive Runway (00.0s – 05.5s)
-* **Horizontal Model Lineup:** Six complete outfits styled head-to-toe on an expansive warm ivory runway.
-* **Tactile Hotspots:** Pulsing interactive pins placed over specific pieces (knitwear, wide denim, sneakers) that reveal item specs on hover.
-* **Model Isolation Zoom:** Clicking any model isolates them with smooth camera zoom and depth-of-field focus.
-* **"In This Look" Slide-Out Drawer:** Displays all worn items with individual prices, real-time 10% bundle discount calculation (*"Complete the look: Save 10%"*), and a single-click `Add full look to bag →` CTA.
-* **Timeline Scrubber:** Integrated pagination track (`← 01 02 03 04 Studio Day 05 06 →`).
-
-### 2. Suspended Horizontal Clothing Rail (05.5s – 08.0s)
-* **Tension Cable Physics:** 14 garments (550 GSM hoodies, chore jackets, tailored trousers, overshirts) suspended along a minimal steel wire.
-* **Dangling Hanger Price Tags:** Every wooden hanger features an authentic hanging price tag ticket.
-* **Active Garment Tracker:** Real-time bottom-left metadata (`Hoodie / $199.00`).
-* **Editorial Microcopy:** Bottom-right manifesto: *"Crafted in heavyweight fleece. Cut oversized. Made to last."* with `Shop the Collection →`.
-* **Quick-View Modal:** Clicking any piece triggers an isolated hanging quick-view modal with Front/Back angle toggles, size pills (`S`, `M`, `L`, `XL`), and instant add-to-cart feedback.
+### 2. Suspended Horizontal Clothing Rail (05.5s – 08.0s & 08.0s – 11.5s)
+* **Zero Card Grids:** No generic rectangular card boxes. Apparel hangs directly on a continuous brushed steel tension cable spanning the screen.
+* **Realistic Beechwood Hangers:** Custom SVG walnut/beechwood hanger beams with steel loop hooks resting on the cable.
+* **Dangling Minimal Price Tickets:** Each piece features a suspended price tag ticket (`$199`, `$185`, `$245`, etc.) that inverts on hover.
+* **12 Curated Cutout Garments:** 550 GSM heavyweight fleece hoodies, chore jackets, bombed canvas outerwear, boiled wool crewnecks, and boxy tees with crisp transparent alpha edges.
+* **Natural Inertia Drag Physics:** Full horizontal touch swiping, mouse drag with spring inertia, discrete stepped left/right navigation, and hover tilt sway ($\pm 1.4^\circ$).
+* **Suspended Quick-View Modal:** Clicking any silhouette transitions to an isolated vertical suspension modal featuring Front/Back view angle toggles, circular size selector pills (`S`, `M`, `L`, `XL`), and instant add-to-bag feedback.
 
 ### 3. 3D Perspective Footwear Gallery (11.5s – 13.5s)
 * **Ascending 3D Trajectory:** Floating footwear arranged along a diagonal spatial perspective curve.
 * **Interactive Perspective Scrubber:** Drag/slide control with dynamic depth-sorting and opacity attenuation.
 * **Shoe Size Matrix:** Direct access to European sizes `40` through `46`.
-* **Watermark Branding:** Bold anchored `OBSESSED` typography.
 
 ### 4. Featured Sneaker Shopping Interface (13.5s – 16.5s)
 * **Floating Hero Sneaker:** High-res floating sneaker with soft breathing contact shadow.
 * **Colorway Carousel:** Outlined thumbnail cards switching colorways with smooth crossfade.
-* **State-Driven Add-to-Bag Button:**
-  1. *Disabled State:* Greyed-out `"Select a size"` until an EU shoe size is chosen.
-  2. *Active State:* Solid black `"Add to bag"`.
-  3. *Purchase State:* Transitions to signature restrained burnt orange (`#C66B39`) with `"Added to bag"` and reveals `"View bag →"`.
+* **State-Driven Add-to-Bag Button:** Disabled -> Active -> Signature Burnt Orange (`#C66B39`) with purchase confirmation.
+
+---
+
+## ✦ Phase 1 — "Try The Look" Interactive Runway [VERIFIED]
+
+Phase 1 recreates the initial fashion runway sequence from the reference video with mathematical precision:
+
+| Verification Stage | Browser Output |
+|---|---|
+| **Full Runway Lineup** | Center model highlighted with smooth contact shadows across ivory canvas |
+| **Carousel Transition** | Glide smoothly to Look 05 (Earthy Knitwear) with 700ms spring physics |
+| **Isolated Outfit View** | Camera zooms into the selected model with detailed worn garment breakdown |
+| **Cart Drawer Integration** | "Add full look to bag" dispatches outfit items to the cart drawer |
+
+---
+
+## ✦ Phase 2 — Animated Hanging Clothing Rail [VERIFIED]
+
+Phase 2 replaces conventional e-commerce card grids with an architectural suspended clothing rail:
+
+### Key Technical Achievements:
+1. **Precision Steel Tension Wire:** A sub-pixel 2.5px gradient cable running across `#F8F7F4` with anchoring hardware fixtures.
+2. **Realistic Hangers & Dangling Tags:** Custom inline SVG dark beechwood hangers with metal loop hooks and dangling miniature price tickets.
+3. **12 Transparent Isolated Garments:** 700px studio cutouts generated with lightweight local AI background removal (`u2netp`) and color grading.
+4. **Spring Physics & Pendulum Sway:** Hovering lifts the garment $-6\text{px}$ with a $\pm 1.4^\circ$ alternating pendulum tilt.
+5. **Suspended Quick-View Modal:** Isolates the garment suspended from a cord with Front/Back angle toggles, size pills (`S`, `M`, `L`, `XL`), and direct dispatch to the cart drawer.
+
+```
+reference_frames/
+├── verification_phase2_01_rail_overview.png       # Tension cable, hangers, dangling tags, cutouts
+├── verification_phase2_02_rail_scrolled.png       # Scrolled position testing inertia glide
+├── verification_phase2_03_quick_view_modal.png    # Suspended modal with Front/Back toggle & sizes
+└── verification_phase2_04_cart_drawer.png         # Added to cart drawer with free shipping meter
+```
+
+---
+
+## ✦ Git Branch Architecture & Contributions
+
+Development follows an enterprise Git flow with discrete feature branches and linear contribution histories:
+
+```
+main (Production Releases)
+ │
+ ├── develop (Integration & Staging)
+ │    │
+ │    ├── feature/try-the-look-runway   ──► Phase 1 (Model Carousel & Outfit Explorer) [MERGED]
+ │    │
+ │    └── feature/clothing-rail-engine  ──► Phase 2 (Suspended Rail & Quick-View Modal) [ACTIVE]
+```
+
+### Branches:
+* `main`: Stable production branch with pre-rendered static routes and verified phases.
+* `develop`: Integration branch where tested feature branches are consolidated.
+* `feature/try-the-look-runway`: Phase 1 interactive model carousel, outfit bundles, and verification suite.
+* `feature/clothing-rail-engine`: Phase 2 tension wire mechanics, wooden hangers, dangling tags, 12 cutout garments, and suspended modal.
 
 ---
 
@@ -120,14 +171,12 @@ Every single route is built with responsive mobile & desktop UX, accessible sema
 
 ## ✦ Design System & Color Tokens
 
-AFAQ SUPPLY adheres strictly to an understated international luxury aesthetic:
-
 | Token | Hex Code | Visual Application |
 |---|---|---|
-| **Base Background** | `#F8F7F4` | Warm ivory canvas creating an airy art-gallery feel |
+| **Base Canvas** | `#F8F7F4` | Warm ivory canvas creating an airy art-gallery feel |
 | **Primary Text** | `#151515` | High-contrast charcoal/off-black for headlines & buttons |
 | **Secondary Text** | `#777777` | Neutral stone grey for specifications & metadata |
-| **Borders** | `#E8E6E1` | Fine hairline dividers maintaining structure |
+| **Borders** | `#E8E6E1` | Fine hairline dividers maintaining architectural structure |
 | **Card Surface** | `#F0EFEB` | Warm tinted card background |
 | **Accent Color** | `#C66B39` | **Restrained Burnt Orange** reserved for purchase feedback |
 | **Dark Obsidian** | `#171717` | Editorial campaign sections & luxury footer |
@@ -142,22 +191,9 @@ AFAQ SUPPLY adheres strictly to an understated international luxury aesthetic:
 ## ✦ Database Architecture (Supabase PostgreSQL)
 
 Located in [`supabase/schema.sql`](supabase/schema.sql), the database consists of 19 normalized tables:
-
-```sql
-profiles                  ──► Extends auth.users with roles & contact
-addresses                 ──► Customer multi-address book
-categories & collections  ──► Hierarchical collection taxonomy
-products                  ──► Core catalog with pricing & statuses
-product_variants          ──► Normalized SKUs, colors, sizes, stock
-product_images            ──► Multi-angle photography gallery
-orders & order_items      ──► Transaction ledger with snapshots
-inventory_logs            ──► Audited stock movements
-discount_codes            ──► Percentage & fixed promotion engine
-store_settings            ──► Dynamic config (Announcement bar, thresholds)
-```
-
-* **Security:** Row Level Security (RLS) policies enforce customer data isolation while granting full administration capabilities to staff roles.
-* **Resilience:** If Supabase credentials are not provided during development, the application automatically uses an offline-resilient local state without crashing.
+- `profiles`, `addresses`, `categories`, `collections`, `products`, `product_variants`, `product_images`, `orders`, `order_items`, `inventory_logs`, `discount_codes`, `store_settings`.
+- **Security:** Full Row Level Security (RLS) policies enforcing patron privacy and administrative controls.
+- **Resilience:** Automatic fallback to offline-resilient local state when database credentials are not supplied.
 
 ---
 
@@ -178,69 +214,13 @@ cd E-Commerce
 npm install
 ```
 
-### 3. Environment Variables
-Copy `.env.example` to `.env.local`:
-```bash
-cp .env.example .env.local
-```
-Add your Supabase credentials (optional for local offline browsing):
-```env
-NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
-NEXT_PUBLIC_SITE_URL=http://localhost:3000
-```
-
-### 4. Run Development Server
-```bash
-npm run dev
-```
-Open [http://localhost:3000](http://localhost:3000) to view the storefront.  
-Open [http://localhost:3000/admin](http://localhost:3000/admin) to view the admin management dashboard.
-
-### 5. Production Build
+### 3. Production Build & Run
 ```bash
 npm run build
 npm start
 ```
-
----
-
-## ✦ Project Structure
-
-```
-├── public/                     # Static assets and icons
-├── src/
-│   ├── app/                    # Next.js 15 App Router
-│   │   ├── about/              # Brand story
-│   │   ├── account/            # Customer profile & orders
-│   │   ├── admin/              # Staff management dashboard
-│   │   ├── cart/               # Full shopping bag page
-│   │   ├── checkout/           # Multi-step checkout flow
-│   │   ├── collections/        # Dynamic collection routes
-│   │   ├── contact/            # Client concierge
-│   │   ├── faq/                # FAQ accordion
-│   │   ├── products/           # Product detail page
-│   │   ├── search/             # Catalog search
-│   │   ├── shipping-returns/   # Logistics & return policies
-│   │   ├── shop/               # Catalog with filters
-│   │   ├── layout.tsx          # Root layout with Header & Footer
-│   │   ├── page.tsx            # Signature Flagship Homepage
-│   │   ├── robots.ts           # SEO Crawler rules
-│   │   └── sitemap.ts          # Automated sitemap
-│   ├── components/
-│   │   ├── cart/               # Cart drawer with spring animations
-│   │   ├── home/               # TryTheLook, ClothingRail, Sneakers, etc.
-│   │   ├── layout/             # Header, Footer, AnnouncementBar
-│   │   ├── product/            # ProductDetailClient, SizeGuide
-│   │   └── search/             # Instant search overlay
-│   ├── data/                   # Outfits, Garments, Sneakers & Products
-│   ├── lib/                    # Supabase client & utilities
-│   ├── store/                  # Persistent Zustand cart & wishlist store
-│   └── types/                  # TypeScript interface definitions
-├── supabase/
-│   └── schema.sql              # Normalized PostgreSQL schema + RLS
-└── tailwind.config.ts          # Luxury design tokens & typography
-```
+Open [http://localhost:3000](http://localhost:3000) to view the storefront.  
+Open [http://localhost:3000/admin](http://localhost:3000/admin) to view the admin management dashboard.
 
 ---
 
