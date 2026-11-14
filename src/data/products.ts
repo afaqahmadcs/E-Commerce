@@ -173,13 +173,13 @@ export const PRODUCTS_DATA: Product[] = [
     isNewArrival: false,
     isBestSeller: true,
     isFeatured: true,
-    primaryImage: "https://images.unsplash.com/photo-1542272604-780c96856592?auto=format&fit=crop&w=1000&q=85",
+    primaryImage: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=1000&q=85",
     allImages: [
-      "https://images.unsplash.com/photo-1542272604-780c96856592?auto=format&fit=crop&w=1000&q=85",
       "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=1000&q=85",
+      "https://images.unsplash.com/photo-1584370848010-d7fe6bc767ec?auto=format&fit=crop&w=1000&q=85",
     ],
     availableColors: [
-      { name: "Washed Indigo", hex: "#5B7493", image: "https://images.unsplash.com/photo-1542272604-780c96856592?auto=format&fit=crop&w=1000&q=85" },
+      { name: "Washed Indigo", hex: "#5B7493", image: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=1000&q=85" },
     ],
     availableSizes: ["30", "32", "34", "36"],
     variants: [
