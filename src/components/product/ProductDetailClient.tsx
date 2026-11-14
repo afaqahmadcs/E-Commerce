@@ -13,7 +13,7 @@ import {
   ZoomIn,
   ArrowRight,
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Product } from "@/types";
 import { useCartStore } from "@/store/useCartStore";
 
@@ -27,6 +27,7 @@ export function ProductDetailClient({
   relatedProducts,
 }: ProductDetailClientProps) {
   const router = useRouter();
+  const shouldReduceMotion = useReducedMotion();
 
   const isHoodie =
     Boolean(product.subcategory?.toLowerCase().includes("hoodie")) ||
@@ -214,9 +215,12 @@ export function ProductDetailClient({
 
                 {/* Floor Breathing Soft Shadow */}
                 <motion.div
-                  animate={{ scale: [1, 0.92, 1], opacity: [0.18, 0.12, 0.18] }}
+                  animate={{
+                    scale: shouldReduceMotion ? 1 : [1, 0.92, 1],
+                    opacity: shouldReduceMotion ? 0.16 : [0.18, 0.12, 0.18],
+                  }}
                   transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute bottom-2 w-72 sm:w-96 h-6 bg-black blur-xl rounded-full -z-10"
+                  className="absolute bottom-2 w-72 sm:w-96 h-6 bg-black blur-xl rounded-full -z-10 pointer-events-none"
                 />
 
                 {/* Zoom Guidance Pill */}
@@ -488,14 +492,14 @@ export function ProductDetailClient({
                     animate={{
                       opacity: 1,
                       scale: 1,
-                      y: isZoomed ? 0 : [0, -10, 0],
+                      y: shouldReduceMotion || isZoomed ? 0 : [0, -10, 0],
                     }}
                     exit={{ opacity: 0.6, scale: 0.95 }}
                     transition={{
                       opacity: { duration: 0.3 },
                       y: { duration: 4, repeat: Infinity, ease: "easeInOut" },
                     }}
-                    className="relative w-80 sm:w-[480px] h-60 sm:h-80 z-10"
+                    className="relative w-80 sm:w-[480px] h-60 sm:h-80 z-10 will-change-transform"
                     style={{
                       transformOrigin: `${zoomPos.x}% ${zoomPos.y}%`,
                       transform: isZoomed ? "scale(2.0)" : "scale(1)",
@@ -515,9 +519,12 @@ export function ProductDetailClient({
 
                 {/* Floor Contact Breathing Shadow */}
                 <motion.div
-                  animate={{ scale: [1, 0.9, 1], opacity: [0.22, 0.12, 0.22] }}
+                  animate={{
+                    scale: shouldReduceMotion ? 1 : [1, 0.9, 1],
+                    opacity: shouldReduceMotion ? 0.18 : [0.22, 0.12, 0.22],
+                  }}
                   transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute bottom-6 w-72 sm:w-96 h-6 bg-black blur-xl rounded-full z-0"
+                  className="absolute bottom-6 w-72 sm:w-96 h-6 bg-black blur-xl rounded-full z-0 pointer-events-none"
                 />
 
                 {/* Zoom Hint */}
@@ -1051,6 +1058,44 @@ export function ProductDetailClient({
           </div>
         </div>
       )}
+      {/* Mobile Sticky Quick-Action Bar */}
+      <div className="md:hidden fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-brand-border px-4 py-3 z-40 flex items-center justify-between shadow-2xl">
+        <div className="flex items-center space-x-2.5 min-w-0">
+          <div className="relative w-10 h-11 bg-brand-card rounded overflow-hidden shrink-0 border border-brand-border">
+            <Image src={selectedImage} alt={product.name} fill className="object-cover" sizes="40px" />
+          </div>
+          <div className="min-w-0">
+            <p className="font-serif text-xs font-medium text-brand-text truncate">{product.name}</p>
+            <p className="font-mono text-xs font-bold text-brand-accent">${product.basePrice.toFixed(2)}</p>
+          </div>
+        </div>
+
+        <button
+          onClick={handleAddToCart}
+          disabled={!selectedSize}
+          className={`ml-3 px-5 py-2.5 rounded-full text-xs uppercase tracking-luxury font-medium transition-all shrink-0 flex items-center space-x-1.5 shadow-sm ${
+            !selectedSize
+              ? "bg-[#D8D6CF] text-neutral-500 cursor-not-allowed"
+              : isAdded
+              ? "bg-brand-accent text-white"
+              : "bg-brand-text text-white"
+          }`}
+        >
+          {isAdded ? (
+            <>
+              <Check className="w-3.5 h-3.5" />
+              <span>Added</span>
+            </>
+          ) : !selectedSize ? (
+            <span>Select Size</span>
+          ) : (
+            <>
+              <ShoppingBag className="w-3.5 h-3.5" />
+              <span>Add to Bag</span>
+            </>
+          )}
+        </button>
+      </div>
     </div>
   );
 }

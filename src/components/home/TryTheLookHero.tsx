@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, X, Check, ShoppingBag, Eye, Sparkles, ChevronRight } from "lucide-react";
-import { motion, AnimatePresence, PanInfo } from "framer-motion";
+import { motion, AnimatePresence, PanInfo, useReducedMotion } from "framer-motion";
 import { LOOKS_DATA } from "@/data/outfits";
 import { useCartStore } from "@/store/useCartStore";
 
@@ -13,11 +13,21 @@ export function TryTheLookHero() {
   const [isIsolated, setIsIsolated] = useState(false);
   const [activeHotspot, setActiveHotspot] = useState<string | null>(null);
   const [addedOutfit, setAddedOutfit] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(1200);
   const isDraggingRef = useRef(false);
 
+  const shouldReduceMotion = useReducedMotion();
   const { addItem, openDrawer } = useCartStore();
 
   const currentLook = LOOKS_DATA[activeLookIndex];
+
+  // Window resize listener for responsive model spacing calibration
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    handleResize();
+    window.addEventListener("resize", handleResize, { passive: true });
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // Calculate bundle pricing
   const originalTotal = currentLook.items.reduce((sum, item) => sum + item.price, 0);
@@ -56,8 +66,8 @@ export function TryTheLookHero() {
   };
 
   const handleDragEnd = (_e: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-    const threshold = 40;
-    const velocityThreshold = 250;
+    const threshold = 35;
+    const velocityThreshold = 220;
 
     if (info.offset.x < -threshold || info.velocity.x < -velocityThreshold) {
       handleNext();
@@ -105,21 +115,24 @@ export function TryTheLookHero() {
     }, 450);
   };
 
+  // Viewport calibrated horizontal spacing
+  const modelSpacing = windowWidth < 640 ? 150 : windowWidth < 1024 ? 190 : 235;
+
   return (
     <section className="relative w-full min-h-[92vh] bg-[#F8F7F4] flex flex-col justify-between overflow-hidden border-b border-brand-border select-none">
       {/* Top Section Header */}
-      <div className="pt-8 sm:pt-10 px-6 sm:px-12 max-w-7xl mx-auto w-full z-20 flex justify-between items-start">
+      <div className="pt-8 sm:pt-10 px-5 sm:px-10 lg:px-12 max-w-7xl mx-auto w-full z-20 flex justify-between items-start">
         <div className="max-w-[280px] sm:max-w-sm">
           <AnimatePresence mode="wait">
             {isIsolated ? (
               <motion.div
                 key="header-isolated"
-                initial={{ opacity: 0, y: -8 }}
+                initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: 0.3 }}
+                exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -8 }}
+                transition={{ duration: shouldReduceMotion ? 0.05 : 0.3 }}
               >
-                <span className="text-[11px] font-mono tracking-widest uppercase text-brand-muted block">
+                <span className="text-[10px] sm:text-[11px] font-mono tracking-luxury uppercase text-brand-muted block">
                   LOOK {currentLook.lookNumber}
                 </span>
                 <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl text-brand-text font-normal tracking-tight">
@@ -132,10 +145,10 @@ export function TryTheLookHero() {
             ) : (
               <motion.div
                 key="header-lineup"
-                initial={{ opacity: 0, y: -8 }}
+                initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: 0.3 }}
+                exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -8 }}
+                transition={{ duration: shouldReduceMotion ? 0.05 : 0.3 }}
               >
                 <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl text-brand-text font-normal tracking-tight">
                   Try the Look.
@@ -177,20 +190,18 @@ export function TryTheLookHero() {
         <motion.div
           drag="x"
           dragConstraints={{ left: 0, right: 0 }}
-          dragElastic={0.18}
+          dragElastic={0.16}
           onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
-          className="relative flex-1 w-full h-[540px] sm:h-[600px] md:h-[640px] flex items-end justify-center cursor-grab active:cursor-grabbing overflow-visible"
+          style={{ touchAction: "pan-y" }}
+          className="relative flex-1 w-full h-[500px] sm:h-[580px] md:h-[620px] flex items-end justify-center cursor-grab active:cursor-grabbing overflow-visible touch-pan-y"
         >
           {LOOKS_DATA.map((look, index) => {
             const offset = index - activeLookIndex;
             const isCenter = offset === 0;
             const absOffset = Math.abs(offset);
 
-            // Spacing calibration matching reference video
-            // Spacing is ~240px on desktop
-            const spacing = 240;
-            const targetX = offset * spacing;
+            const targetX = offset * modelSpacing;
 
             // Scale calculations: Center is 1.14x, +/-1 is 0.88x, +/-2 is 0.72x
             let scale = 1.14;
@@ -239,26 +250,27 @@ export function TryTheLookHero() {
                 key={look.id}
                 animate={{
                   x: targetX,
-                  scale,
+                  scale: shouldReduceMotion ? (isCenter ? 1 : 0.9) : scale,
                   opacity,
-                  filter: `blur(${blurAmount}px)`,
+                  filter: shouldReduceMotion ? "none" : `blur(${blurAmount}px)`,
                 }}
                 transition={{
-                  duration: 0.7,
-                  ease: [0.16, 1, 0.3, 1], // Luxury 700ms ease-out curve
+                  duration: shouldReduceMotion ? 0.05 : 0.65,
+                  ease: [0.16, 1, 0.3, 1], // Luxury 650ms ease-out curve
                 }}
                 style={{
                   zIndex,
                   transformOrigin: "bottom center",
+                  willChange: "transform, opacity",
                 }}
                 onClick={() => handleModelClick(index)}
                 className="absolute bottom-6 flex flex-col items-center justify-end group pointer-events-auto"
               >
                 {/* Full-Body Model Figure */}
-                <div className="relative w-56 sm:w-64 md:w-72 h-[480px] sm:h-[540px] md:h-[580px] flex items-end justify-center">
+                <div className="relative w-52 sm:w-64 md:w-72 h-[450px] sm:h-[520px] md:h-[570px] flex items-end justify-center">
                   {/* Organic Ground Contact Shadow */}
                   <div
-                    className={`absolute -bottom-2 left-1/2 -translate-x-1/2 w-44 sm:w-52 h-6 rounded-full blur-[9px] pointer-events-none transform scale-y-45 transition-all duration-700 ${
+                    className={`absolute -bottom-2 left-1/2 -translate-x-1/2 w-40 sm:w-52 h-6 rounded-full blur-[9px] pointer-events-none transform scale-y-45 transition-all duration-700 ${
                       isCenter ? "bg-black/35 blur-[10px]" : "bg-black/15 blur-[6px]"
                     }`}
                   />
@@ -272,6 +284,7 @@ export function TryTheLookHero() {
                       height={1000}
                       priority={isCenter || absOffset === 1}
                       className="w-auto h-full object-contain object-bottom drop-shadow-[0_4px_16px_rgba(0,0,0,0.06)]"
+                      sizes="(max-width: 640px) 240px, (max-width: 1024px) 300px, 380px"
                     />
                   </div>
 
@@ -280,8 +293,8 @@ export function TryTheLookHero() {
                     <motion.div
                       initial={{ scale: 0.8, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
-                      transition={{ delay: 0.2, duration: 0.3 }}
-                      className="absolute top-[38%] -right-2 sm:right-2 z-40 pointer-events-auto cursor-pointer"
+                      transition={{ delay: 0.15, duration: 0.3 }}
+                      className="absolute top-[38%] -right-1 sm:right-2 z-40 pointer-events-auto cursor-pointer"
                       onClick={(e) => {
                         e.stopPropagation();
                         setIsIsolated(true);
@@ -359,7 +372,7 @@ export function TryTheLookHero() {
         {/* Right Docked Panel: "IN THIS LOOK" (Matching Reference Video) */}
         <motion.div
           layout
-          className="w-full lg:w-[340px] xl:w-[360px] bg-white/75 backdrop-blur-md border border-brand-border/80 rounded-2xl p-6 shadow-sm mt-4 lg:mt-0 space-y-5 z-20 shrink-0"
+          className="w-full lg:w-[340px] xl:w-[360px] bg-white/80 backdrop-blur-md border border-brand-border/80 rounded-2xl p-5 sm:p-6 shadow-sm mt-4 lg:mt-0 space-y-5 z-20 shrink-0"
         >
           {/* Header */}
           <div className="flex items-center justify-between pb-3.5 border-b border-brand-border/70">
@@ -381,10 +394,10 @@ export function TryTheLookHero() {
             <AnimatePresence mode="wait">
               <motion.div
                 key={currentLook.id}
-                initial={{ opacity: 0, y: 10 }}
+                initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.3 }}
+                exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -8 }}
+                transition={{ duration: shouldReduceMotion ? 0.05 : 0.28 }}
                 className="space-y-2.5"
               >
                 {currentLook.items.map((item) => {
@@ -497,7 +510,7 @@ export function TryTheLookHero() {
       </div>
 
       {/* Bottom Scrubber Timeline Navigation (Matching Reference Video) */}
-      <div className="py-5 px-6 sm:px-12 max-w-7xl mx-auto w-full border-t border-brand-border/60 flex items-center justify-between z-20">
+      <div className="py-4 sm:py-5 px-5 sm:px-10 lg:px-12 max-w-7xl mx-auto w-full border-t border-brand-border/60 flex items-center justify-between z-20">
         {/* Prev Arrow */}
         <button
           onClick={handlePrev}
@@ -509,7 +522,7 @@ export function TryTheLookHero() {
         </button>
 
         {/* Timeline Scrubber Points */}
-        <div className="flex items-center space-x-3 sm:space-x-6 overflow-x-auto no-scrollbar py-1">
+        <div className="flex items-center space-x-2.5 sm:space-x-6 overflow-x-auto no-scrollbar py-1">
           {LOOKS_DATA.map((look, index) => {
             const isActive = index === activeLookIndex;
             return (
@@ -520,7 +533,7 @@ export function TryTheLookHero() {
                   setAddedOutfit(false);
                   setActiveHotspot(null);
                 }}
-                className={`relative flex items-center space-x-2 text-xs font-mono transition-all py-1.5 px-2 rounded-md ${
+                className={`relative flex items-center space-x-1.5 text-xs font-mono transition-all py-1.5 px-2 rounded-md ${
                   isActive
                     ? "text-brand-text font-bold"
                     : "text-brand-muted hover:text-brand-text"

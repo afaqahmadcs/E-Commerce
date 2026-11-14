@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { X, Check, ShoppingBag } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { HangingGarment } from "@/types";
 import { useCartStore } from "@/store/useCartStore";
 
@@ -17,6 +17,7 @@ export function GarmentQuickViewModal({ garment, onClose }: GarmentQuickViewModa
   const [selectedView, setSelectedView] = useState<"front" | "back">("front");
   const [selectedSize, setSelectedSize] = useState<string>("M");
   const [isAdded, setIsAdded] = useState(false);
+  const shouldReduceMotion = useReducedMotion();
 
   const { addItem, openDrawer } = useCartStore();
 
@@ -60,10 +61,14 @@ export function GarmentQuickViewModal({ garment, onClose }: GarmentQuickViewModa
 
         {/* Modal Stage (Matches Reference 07.5s - 11.0s) */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.94, y: 16 }}
+          initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.94, y: 16 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.94, y: 16 }}
-          transition={{ type: "spring", damping: 28, stiffness: 320 }}
+          exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.94, y: 16 }}
+          transition={
+            shouldReduceMotion
+              ? { duration: 0.1 }
+              : { type: "spring", damping: 28, stiffness: 320 }
+          }
           className="relative w-full max-w-4xl bg-[#F8F7F4] rounded-3xl border border-brand-border shadow-2xl p-6 sm:p-12 z-10 flex flex-col md:flex-row items-center justify-between gap-8 md:gap-12"
         >
           {/* Top-Right Close Button */}

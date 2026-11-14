@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, Check } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { SNEAKERS_DATA } from "@/data/sneakers";
 import { useCartStore } from "@/store/useCartStore";
 
@@ -13,6 +13,7 @@ export function FeaturedSneakerSection() {
   const [selectedColorIndex, setSelectedColorIndex] = useState(0);
   const [selectedSize, setSelectedSize] = useState<number | null>(null); // starts null to demonstrate "Select a size"
   const [isAdded, setIsAdded] = useState(false);
+  const shouldReduceMotion = useReducedMotion();
 
   const { addItem, openDrawer } = useCartStore();
 
@@ -55,19 +56,23 @@ export function FeaturedSneakerSection() {
   };
 
   return (
-    <section className="relative w-full py-16 sm:py-24 bg-[#F8F7F4] border-b border-brand-border select-none overflow-hidden">
-      <div className="max-w-7xl mx-auto px-6 sm:px-12">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+    <section className="relative w-full py-14 sm:py-20 lg:py-24 bg-[#F8F7F4] border-b border-brand-border select-none overflow-hidden">
+      <div className="max-w-7xl mx-auto px-5 sm:px-10 lg:px-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
           {/* Left Column: Large Floating Sneaker & Thumbnails (Matches Reference 14.5s) */}
           <div className="lg:col-span-7 flex flex-col items-center">
             {/* The Floating Sneaker with realistic soft contact shadow */}
-            <div className="relative w-full max-w-lg h-72 sm:h-96 flex items-center justify-center">
+            <div className="relative w-full max-w-lg h-64 sm:h-84 md:h-96 flex items-center justify-center">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={activeThumbnail.image}
-                  initial={{ opacity: 0.6, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1, y: [0, -10, 0] }}
-                  exit={{ opacity: 0.6, scale: 0.95 }}
+                  initial={{ opacity: 0.6, scale: 0.96 }}
+                  animate={{
+                    opacity: 1,
+                    scale: 1,
+                    y: shouldReduceMotion ? 0 : [0, -10, 0],
+                  }}
+                  exit={{ opacity: 0.6, scale: 0.96 }}
                   transition={{
                     opacity: { duration: 0.25 },
                     y: {
@@ -76,14 +81,14 @@ export function FeaturedSneakerSection() {
                       ease: "easeInOut",
                     },
                   }}
-                  className="relative w-72 sm:w-96 h-56 sm:h-72 drop-shadow-2xl z-10"
+                  className="relative w-64 sm:w-84 md:w-96 h-48 sm:h-64 md:h-72 drop-shadow-2xl z-10 will-change-transform"
                 >
                   <Image
                     src={activeThumbnail.image}
                     alt={sneaker.modelName}
                     fill
                     className="object-contain transform -rotate-6 hover:scale-105 transition-transform duration-500"
-                    sizes="(max-width: 768px) 320px, 450px"
+                    sizes="(max-width: 640px) 260px, (max-width: 1024px) 360px, 450px"
                     priority
                   />
                 </motion.div>
@@ -91,18 +96,21 @@ export function FeaturedSneakerSection() {
 
               {/* Floor Shadow with breathing scale */}
               <motion.div
-                animate={{ scale: [1, 0.9, 1], opacity: [0.2, 0.12, 0.2] }}
+                animate={{
+                  scale: shouldReduceMotion ? 1 : [1, 0.9, 1],
+                  opacity: shouldReduceMotion ? 0.16 : [0.2, 0.12, 0.2],
+                }}
                 transition={{
                   duration: 4,
                   repeat: Infinity,
                   ease: "easeInOut",
                 }}
-                className="absolute bottom-6 w-64 sm:w-80 h-6 bg-black blur-lg rounded-full z-0"
+                className="absolute bottom-4 sm:bottom-6 w-56 sm:w-80 h-5 sm:h-6 bg-black blur-lg rounded-full z-0 pointer-events-none"
               />
             </div>
 
             {/* Horizontal Colorway Thumbnails Carousel Below */}
-            <div className="mt-8 flex items-center space-x-3">
+            <div className="mt-6 sm:mt-8 flex items-center space-x-2.5 sm:space-x-3">
               {sneaker.thumbnails.map((thumb, index) => {
                 const isActive = index === selectedColorIndex;
                 return (
@@ -112,7 +120,7 @@ export function FeaturedSneakerSection() {
                       setSelectedColorIndex(index);
                       setIsAdded(false);
                     }}
-                    className={`relative w-14 h-14 rounded-lg p-1 bg-white border transition-all ${
+                    className={`relative w-12 h-12 sm:w-14 sm:h-14 rounded-lg p-1 bg-white border transition-all ${
                       isActive
                         ? "border-brand-text ring-1 ring-brand-text scale-105 shadow-md"
                         : "border-brand-border/80 hover:border-brand-border opacity-70 hover:opacity-100"
@@ -132,7 +140,7 @@ export function FeaturedSneakerSection() {
             </div>
 
             {/* Pagination Scrubber Control (Reference 14.5s: ← 01 / 07 →) */}
-            <div className="mt-6 flex items-center space-x-4 text-xs font-mono">
+            <div className="mt-5 sm:mt-6 flex items-center space-x-4 text-xs font-mono">
               <button
                 onClick={handlePrev}
                 className="p-1.5 text-brand-text hover:text-brand-accent transition-colors"
@@ -154,9 +162,9 @@ export function FeaturedSneakerSection() {
           </div>
 
           {/* Right Column: Purchasing Matrix (Matches Reference 13.5s - 16.0s) */}
-          <div className="lg:col-span-5 space-y-6 max-w-md mx-auto lg:mx-0 w-full">
+          <div className="lg:col-span-5 space-y-5 sm:space-y-6 max-w-md mx-auto lg:mx-0 w-full">
             <div>
-              <span className="text-[10px] font-mono tracking-widest uppercase text-brand-accent font-semibold block">
+              <span className="text-[10px] font-mono tracking-luxury uppercase text-brand-accent font-semibold block">
                 FLAGSHIP SNEAKER
               </span>
               <h2 className="font-serif text-3xl sm:text-4xl font-normal text-brand-text tracking-tight mt-1">
@@ -194,7 +202,7 @@ export function FeaturedSneakerSection() {
                       }}
                       className={`h-11 rounded text-xs font-mono font-medium transition-all flex items-center justify-center ${
                         isSizeSelected
-                          ? "bg-brand-text text-white font-bold shadow-sm"
+                          ? "bg-brand-text text-white font-bold shadow-sm scale-102"
                           : "bg-white border border-brand-border text-brand-text hover:border-brand-text"
                       }`}
                     >
@@ -210,12 +218,12 @@ export function FeaturedSneakerSection() {
               <button
                 disabled={!selectedSize}
                 onClick={handleAddToCart}
-                className={`w-full py-4 px-6 rounded-full text-xs uppercase tracking-luxury font-medium transition-all shadow-md flex items-center justify-center space-x-2 ${
+                className={`w-full py-3.5 sm:py-4 px-6 rounded-full text-xs uppercase tracking-luxury font-medium transition-all shadow-md flex items-center justify-center space-x-2 ${
                   !selectedSize
                     ? "bg-[#D8D6CF] text-neutral-500 cursor-not-allowed" // Disabled state (Frame 13.5s)
                     : isAdded
-                    ? "bg-brand-accent text-white" // Burnt orange purchase state (Frame 16.0s)
-                    : "bg-brand-text hover:bg-brand-dark text-white" // Active Add to bag (Frame 14.5s)
+                    ? "bg-brand-accent text-white shadow-brand-accent/25" // Burnt orange purchase state (Frame 16.0s)
+                    : "bg-brand-text hover:bg-brand-dark text-white hover:shadow-lg" // Active Add to bag (Frame 14.5s)
                 }`}
               >
                 {!selectedSize ? (
