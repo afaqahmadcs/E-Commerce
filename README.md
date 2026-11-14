@@ -22,6 +22,7 @@
   <a href="#-phase-2--animated-hanging-clothing-rail-verified">Phase 2 Clothing Rail</a> •
   <a href="#-phase-3--premium-hoodie--sneaker-product-presentation-verified">Phase 3 Details</a> •
   <a href="#-phase-4--full-e-commerce-engine--pakistani-payments-verified">Phase 4 Full E-Commerce</a> •
+  <a href="#-phase-5--luxury-motion-design--responsive-optimization-verified">Phase 5 Motion & Responsive</a> •
   <a href="#-git-branch-architecture--contributions">Git Workflow</a> •
   <a href="#-full-site-architecture-all-21-routes">All 21 Routes</a> •
   <a href="#-getting-started">Quick Start</a> •
@@ -39,16 +40,16 @@
 Inspired directly by the high-end runway and interactive retail experience recorded in `reference/reference-video.mp4`, every micro-interaction—from model isolation zooms to suspended clothing rail physics, 3D perspective footwear trajectories, and multi-gateway Pakistani & international payment flows—was engineered with commercial-grade scalability and sub-second performance.
 
 ```
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│  AFAQ SUPPLY FLAGSHIP EXPERIENCE                                                      │
-│  "THE ART OF EVERYDAY STYLE"                                                          │
-│                                                                                       │
-│  [PHASE 1: RUNWAY] ──► [PHASE 2: RAIL] ──► [PHASE 3: SNEAKER] ──► [PHASE 4: ENGINE]    │
-│         │                      │                   │                     │            │
-│         ▼                      ▼                   ▼                     ▼            │
-│  Outfit Bundle Explorer  Suspended Cable     Ascending Wave 3D     Full E-Commerce    │
-│  (Framer 700ms Spring)   (Wood Hangers/Tags) (Matrix Sizes & Lens) (Orders, COD & RLS)│
-└────────────────────────────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│  AFAQ SUPPLY FLAGSHIP EXPERIENCE                                                                        │
+│  "THE ART OF EVERYDAY STYLE"                                                                            │
+│                                                                                                         │
+│  [PHASE 1: RUNWAY] ──► [PHASE 2: RAIL] ──► [PHASE 3: SNEAKER] ──► [PHASE 4: ENGINE] ──► [PHASE 5: MOTION]│
+│         │                      │                   │                     │                     │        │
+│         ▼                      ▼                   ▼                     ▼                     ▼        │
+│  Outfit Bundle Explorer  Suspended Cable     Ascending Wave 3D     Full E-Commerce       650ms Luxury   │
+│  (Framer 700ms Spring)   (Wood Hangers/Tags) (Matrix Sizes & Lens) (Orders, COD & RLS)   (4 Viewports)  │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -179,6 +180,44 @@ reference_frames/
 
 ---
 
+## ✦ Phase 5 — Luxury Motion Design & Responsive Optimization [VERIFIED]
+
+Phase 5 refines every micro-interaction and responsive layout across **Desktop ($1440\text{px}+$)*, **Laptop ($1024\text{px}-1439\text{px}$)**, **Tablet ($768\text{px}-1023\text{px}$)**, and **Smartphone ($375\text{px}-767\text{px}$)** to international luxury fashion standards without breaking existing commercial shopping functionality:
+
+### 1. Luxury Motion Easing Curves & Spatial Timing
+- **Editorial Deceleration Curve:** Standardized on `cubic-bezier(0.16, 1, 0.3, 1)` (custom 650ms luxury glide) across runway models, product galleries, and drawer entrances.
+- **Physics-Tuned Springs:** Fine-tuned `stiffness: 280-320` and `damping: 24-28` to deliver high-end mechanical tactile feedback without bouncy cartoon physics.
+- **Hardware Layer Acceleration (`.gpu-layer`):** Applied `transform: translate3d(0, 0, 0)` and `will-change: transform, opacity` to all animated elements to isolate compositing layers and maintain 60–120 FPS on high-refresh ProMotion displays.
+- **Accessible Motion (`prefers-reduced-motion`):** Built-in `useReducedMotion()` hooks across all interactive components gracefully substitute multi-axis translations and continuous breathing loops with immediate, dignified opacity fades.
+
+### 2. Multi-Viewport Responsive Matrix
+| Viewport Profile | Resolution Range | Model Runway Spacing | Suspended Rail UX | Product Detail Ergonomics |
+|---|---|---|---|---|
+| **Desktop Flagship** | $\ge 1440\text{px}$ | $235\text{px}$ center offset | Full inertia drag with hover pendulum sway | Split-screen with $\times 2.2$ cursor zoom lens |
+| **Laptop Compact** | $1024\text{px} - 1439\text{px}$ | $210\text{px}$ center offset | Drag with discrete arrow controls | Responsive dual-column editorial layout |
+| **Tablet Portrait** | $768\text{px} - 1023\text{px}$ | $190\text{px}$ center offset | Touch swipe with `touch-action: pan-y` | Stacked photography with tap-to-zoom |
+| **Smartphone** | $375\text{px} - 767\text{px}$ | $150\text{px}$ calibrated peek-in | Native horizontal swipe & touch cards | **Sticky Quick-Buy Bar** with instant packshot & price |
+
+### 3. Mobile Flagship Innovations
+- **Animated Mobile Navigation Drawer:** Luxury full-screen sliding overlay with staggered editorial typography links (`Atelier`, `Collections`, `Footwear`, `Archive`, `Client Concierge`), bag counter badge, and client account shortcuts.
+- **Touch Ergonomics (`touch-action: pan-y`):** Enabled vertical page scrolling across all draggable carousels and rails, eliminating touch gesture locking on iOS Safari and Android Chrome.
+- **Calibrated Runway Spacing:** Reduced model offsets from 240px to 150px on smartphones, ensuring adjacent silhouettes gracefully peek into the viewport matching luxury lookbooks.
+- **Sticky Bottom Quick-Action Bar:** On mobile screens, product detail pages present a fixed bottom utility bar displaying the active packshot thumbnail, silhouette name, price, and one-tap **Add to Bag** trigger.
+
+```
+reference_frames/
+├── verification_phase5_01_desktop_runway.png    # Desktop (1440x960) 650ms model transition
+├── verification_phase5_02_desktop_quickview.png # Desktop Suspended Rail Quick-View Modal
+├── verification_phase5_03_laptop_shop.png       # Laptop (1024x768) responsive catalog view
+├── verification_phase5_04_tablet_runway.png     # Tablet (768x1024) calibrated 190px runway
+├── verification_phase5_05_tablet_sneaker.png    # Tablet responsive sneaker gallery
+├── verification_phase5_06_mobile_nav_drawer.png # Smartphone (375x812) animated luxury drawer
+├── verification_phase5_07_mobile_runway.png     # Smartphone 150px calibrated lookbook peek-in
+└── verification_phase5_08_mobile_pdp_sticky.png # Smartphone sticky bottom quick-buy bar
+```
+
+---
+
 ## ✦ Git Branch Architecture & Contributions
 
 Development follows an enterprise Git flow with discrete feature branches and linear contribution histories:
@@ -194,7 +233,9 @@ main (Production Releases)
  │    │
  │    ├── feature/product-presentation-phase3  ──► Phase 3 (Hoodie & Sneaker Detail) [MERGED]
  │    │
- │    └── feature/full-ecommerce-engine        ──► Phase 4 (Full E-Commerce & Payments) [COMPLETED]
+ │    ├── feature/full-ecommerce-engine        ──► Phase 4 (Full E-Commerce & Payments) [MERGED]
+ │    │
+ │    └── feature/motion-and-responsive-optimization ──► Phase 5 (Luxury Motion & 4 Viewports) [COMPLETED]
 ```
 
 ### Branches:
@@ -204,6 +245,7 @@ main (Production Releases)
 * `feature/clothing-rail-engine`: Phase 2 tension wire mechanics, wooden hangers, dangling tags, and suspended modal.
 * `feature/product-presentation-phase3`: Phase 3 minimal editorial hoodie layout, interactive zoom lens, floating sneaker, viewing angle thumbnails, and orange purchase state machine.
 * `feature/full-ecommerce-engine`: Phase 4 complete customer account, search, checkout, Pakistani payment gateways, server security, and admin management console.
+* `feature/motion-and-responsive-optimization`: Phase 5 luxury easing curves, GPU acceleration, mobile navigation drawer, touch-pan-y drag freedom, sticky quick-buy bar, and 4-viewport test matrix.
 
 ---
 
