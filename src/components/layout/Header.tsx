@@ -10,14 +10,16 @@ import { useCartStore } from "@/store/useCartStore";
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
   const shouldReduceMotion = useReducedMotion();
 
   const { openDrawer, openSearch, getItemCount, wishlistIds } = useCartStore();
-  const itemCount = getItemCount();
-  const wishlistCount = wishlistIds.length;
+  const itemCount = mounted ? getItemCount() : 0;
+  const wishlistCount = mounted ? wishlistIds.length : 0;
 
   useEffect(() => {
+    setMounted(true);
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 15);
     };

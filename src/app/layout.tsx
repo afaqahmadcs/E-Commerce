@@ -39,8 +39,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${playfair.variable} ${inter.variable}`}>
-      <body className="antialiased min-h-screen flex flex-col bg-[#F8F7F4] text-[#151515]">
+    <html lang="en" suppressHydrationWarning className={`${playfair.variable} ${inter.variable}`}>
+      <body suppressHydrationWarning className="antialiased min-h-screen flex flex-col bg-[#F8F7F4] text-[#151515]">
         {/* Global Announcement Strip */}
         <AnnouncementBar />
 
