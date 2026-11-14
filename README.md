@@ -114,6 +114,44 @@ reference_frames/
 
 ---
 
+## ✦ Phase 3 — Premium Hoodie & Sneaker Product Presentation [VERIFIED]
+
+Phase 3 implements the two core product presentation and purchasing experiences from seconds **08.5s – 11.0s** and **13.5s – 16.5s** of `reference/reference-video.mp4`:
+
+### Part A — Minimal Editorial Hoodie Presentation (08.5s – 11.0s)
+1. **Dominant Isolated Packshot:** Large isolated hoodie asset on neutral `#F8F7F4` warm ivory background with zero bounding card borders.
+2. **Suspended Wooden Hanger:** Contoured dark beechwood hanger with suspended vertical cord.
+3. **Front / Back Angle Switcher:** Interactive pills toggling between the front graphic packshot and clean reverse silhouette.
+4. **Interactive Cursor Zoom Lens:** Dynamic $\times 2.2$ magnification following cursor position `(x, y)` to inspect 550 GSM French Terry loops, flatlock seams, and kangaroo pocket bartacks.
+5. **Colorway Matrix:** Smooth Framer Motion crossfade across Heather Melange, Washed Black, Forest Green, and Bone Cream.
+6. **Size Selector & Cart Integration:** Circular pills (`S`, `M`, `L`, `XL`), tactile feedback button, and instant sliding shopping bag drawer.
+
+### Part B — Sneaker Detail & Purchasing Experience (13.5s – 16.5s)
+1. **Floating Hero Sneaker:** High-resolution transparent sneaker with soft breathing contact floor shadow.
+2. **Calfskin Inspection Zoom:** Cursor-guided magnification to inspect Italian tumbled calfskin leather and suede mudguards.
+3. **Supporting Viewing Angles:** Horizontal carousel of supporting perspective thumbnails (Lateral Profile, 3/4 Perspective Court, Overhead Top-Down, Outsole Tread, Heel Badge).
+4. **Color Options Swatches:** Swatches updating the entire image gallery with smooth crossfade.
+5. **EU Size Selector Grid:** Direct selection of sizes `40` through `46` with dynamic inventory indicator (*"In Stock (14 pairs)"* / *"Low Stock"*).
+6. **State-Driven Orange-Accented Purchase Button:**
+   - *Disabled State:* Greyed-out `"Select a size"` until an EU shoe size is chosen.
+   - *Active State:* Solid black `"Add to bag"`.
+   - *Purchase State:* Transitions to signature restrained burnt orange (`#C66B39`) with `"Added to bag"` and reveals `"View bag →"`.
+   - Automatically slides open the global cart drawer.
+
+```
+reference_frames/
+├── verification_phase3_01_hoodie_overview.png     # Minimal editorial stage with suspended hanger
+├── verification_phase3_02_hoodie_back_view.png    # Front / Back angle switcher in action
+├── verification_phase3_03_hoodie_color_switch.png # Smooth colorway crossfade (Forest Green)
+├── verification_phase3_04_hoodie_cart_drawer.png  # Added to bag with live cart drawer
+├── verification_phase3_05_sneaker_overview.png    # Floating sneaker with breathing shadow
+├── verification_phase3_06_sneaker_angle_switch.png# Supporting viewing angles crossfade
+├── verification_phase3_07_sneaker_cart_drawer.png # Orange button state & cart integration
+└── verification_phase3_08_home_featured_sneaker.png# Homepage featured sneaker showcase
+```
+
+---
+
 ## ✦ Git Branch Architecture & Contributions
 
 Development follows an enterprise Git flow with discrete feature branches and linear contribution histories:
@@ -123,16 +161,19 @@ main (Production Releases)
  │
  ├── develop (Integration & Staging)
  │    │
- │    ├── feature/try-the-look-runway   ──► Phase 1 (Model Carousel & Outfit Explorer) [MERGED]
+ │    ├── feature/try-the-look-runway          ──► Phase 1 (Model Runway & Bundles) [MERGED]
  │    │
- │    └── feature/clothing-rail-engine  ──► Phase 2 (Suspended Rail & Quick-View Modal) [ACTIVE]
+ │    ├── feature/clothing-rail-engine         ──► Phase 2 (Suspended Rail & Modal) [MERGED]
+ │    │
+ │    └── feature/product-presentation-phase3  ──► Phase 3 (Hoodie & Sneaker Detail) [ACTIVE]
 ```
 
 ### Branches:
 * `main`: Stable production branch with pre-rendered static routes and verified phases.
 * `develop`: Integration branch where tested feature branches are consolidated.
 * `feature/try-the-look-runway`: Phase 1 interactive model carousel, outfit bundles, and verification suite.
-* `feature/clothing-rail-engine`: Phase 2 tension wire mechanics, wooden hangers, dangling tags, 12 cutout garments, and suspended modal.
+* `feature/clothing-rail-engine`: Phase 2 tension wire mechanics, wooden hangers, dangling tags, and suspended modal.
+* `feature/product-presentation-phase3`: Phase 3 minimal editorial hoodie layout, interactive zoom lens, floating sneaker, viewing angle thumbnails, and orange-accented purchase state machine.
 
 ---
 

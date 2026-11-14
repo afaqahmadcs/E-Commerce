@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, Check } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { SNEAKERS_DATA } from "@/data/sneakers";
 import { useCartStore } from "@/store/useCartStore";
 
@@ -49,6 +49,9 @@ export function FeaturedSneakerSection() {
     });
 
     setIsAdded(true);
+    setTimeout(() => {
+      openDrawer();
+    }, 400);
   };
 
   return (
@@ -59,25 +62,32 @@ export function FeaturedSneakerSection() {
           <div className="lg:col-span-7 flex flex-col items-center">
             {/* The Floating Sneaker with realistic soft contact shadow */}
             <div className="relative w-full max-w-lg h-72 sm:h-96 flex items-center justify-center">
-              <motion.div
-                animate={{ y: [0, -10, 0] }}
-                transition={{
-                  duration: 4,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
-                className="relative w-72 sm:w-96 h-56 sm:h-72 drop-shadow-2xl z-10"
-              >
-                <Image
+              <AnimatePresence mode="wait">
+                <motion.div
                   key={activeThumbnail.image}
-                  src={activeThumbnail.image}
-                  alt={sneaker.modelName}
-                  fill
-                  className="object-contain transform -rotate-6 hover:scale-105 transition-transform duration-500"
-                  sizes="(max-width: 768px) 320px, 450px"
-                  priority
-                />
-              </motion.div>
+                  initial={{ opacity: 0.6, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1, y: [0, -10, 0] }}
+                  exit={{ opacity: 0.6, scale: 0.95 }}
+                  transition={{
+                    opacity: { duration: 0.25 },
+                    y: {
+                      duration: 4,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                    },
+                  }}
+                  className="relative w-72 sm:w-96 h-56 sm:h-72 drop-shadow-2xl z-10"
+                >
+                  <Image
+                    src={activeThumbnail.image}
+                    alt={sneaker.modelName}
+                    fill
+                    className="object-contain transform -rotate-6 hover:scale-105 transition-transform duration-500"
+                    sizes="(max-width: 768px) 320px, 450px"
+                    priority
+                  />
+                </motion.div>
+              </AnimatePresence>
 
               {/* Floor Shadow with breathing scale */}
               <motion.div
