@@ -3,31 +3,32 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, Truck, CheckCircle, Clock } from "lucide-react";
+import { ArrowLeft, Truck, CheckCircle2, Clock, PackageCheck, AlertCircle, RefreshCw } from "lucide-react";
 import { Order } from "@/types";
 
 export default function OrdersHistoryPage() {
   const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const loadOrders = () => {
     try {
       const savedOrders = JSON.parse(localStorage.getItem("afaq_customer_orders") || "[]");
       if (savedOrders.length > 0) {
         setOrders(savedOrders);
       } else {
-        // Seed default sample order for demo
+        // Seed default sample order for demonstration if empty
         const demoOrder: Order = {
           id: "ord-demo-01",
-          orderNumber: "AFQ-2026-819241",
+          orderNumber: "AFQ-20261114-8192",
           customer: {
-            fullName: "Marcus Vance",
-            email: "marcus.vance@atelier.com",
-            phone: "+1 (555) 392-1840",
-            addressLine1: "742 Evergreen Terrace, Penthouse B",
-            city: "New York",
-            stateProvince: "NY",
-            postalCode: "10001",
-            country: "United States",
+            fullName: "Afaq Ahmad",
+            email: "afaq@atelier.com",
+            phone: "+92 300 8849201",
+            addressLine1: "House #14, Street 9, Sector F-7/2",
+            city: "Islamabad",
+            stateProvince: "ICT",
+            postalCode: "44000",
+            country: "Pakistan",
           },
           items: [
             {
@@ -61,26 +62,45 @@ export default function OrdersHistoryPage() {
           total: 348,
           paymentMethod: "cod",
           paymentStatus: "pending",
-          orderStatus: "processing",
-          createdAt: new Date(Date.now() - 86400000 * 2).toISOString(),
+          orderStatus: "confirmed",
+          createdAt: new Date().toISOString(),
         };
         setOrders([demoOrder]);
+        localStorage.setItem("afaq_customer_orders", JSON.stringify([demoOrder]));
       }
     } catch {
       setOrders([]);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
+    loadOrders();
+
+    // Listen for cross-window / checkout events
+    const handleStorageChange = () => loadOrders();
+    window.addEventListener("storage", handleStorageChange);
+    window.addEventListener("afaq_new_order_placed", handleStorageChange);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("afaq_new_order_placed", handleStorageChange);
+    };
   }, []);
 
   const getStatusBadge = (status: Order["orderStatus"]) => {
     switch (status) {
       case "delivered":
-        return "bg-green-100 text-green-800 border-green-200";
+        return { label: "Delivered", bg: "bg-emerald-100 text-emerald-800 border-emerald-200", icon: CheckCircle2 };
       case "shipped":
-        return "bg-blue-100 text-blue-800 border-blue-200";
+        return { label: "In Transit", bg: "bg-blue-100 text-blue-800 border-blue-200", icon: Truck };
       case "processing":
-        return "bg-amber-100 text-amber-800 border-amber-200";
+        return { label: "Atelier Assembly", bg: "bg-amber-100 text-amber-800 border-amber-200", icon: Clock };
+      case "confirmed":
+        return { label: "Order Confirmed", bg: "bg-neutral-100 text-neutral-800 border-neutral-300", icon: PackageCheck };
       default:
-        return "bg-neutral-100 text-neutral-800 border-neutral-200";
+        return { label: status, bg: "bg-neutral-100 text-neutral-800 border-neutral-200", icon: AlertCircle };
     }
   };
 
@@ -99,124 +119,154 @@ export default function OrdersHistoryPage() {
             CLIENT ARCHIVE
           </span>
           <h1 className="font-serif text-3xl sm:text-4xl text-brand-text font-normal tracking-tight mt-1">
-            DISPATCH HISTORY
+            DISPATCH & ORDER HISTORY
           </h1>
+          <p className="text-xs text-brand-muted mt-1">
+            Review real-time tracking, courier references, and archival receipts.
+          </p>
         </div>
-        <span className="text-xs font-mono text-brand-muted">
-          ({orders.length} dispatches)
-        </span>
+
+        <button
+          onClick={loadOrders}
+          className="flex items-center space-x-1.5 px-3 py-1.5 border border-brand-border rounded text-xs font-mono text-brand-muted hover:text-brand-text hover:bg-brand-card transition-colors"
+        >
+          <RefreshCw className="w-3 h-3" />
+          <span>Refresh</span>
+        </button>
       </div>
 
-      <div className="mt-8 space-y-6">
-        {orders.map((order) => (
-          <div
-            key={order.id}
-            className="bg-white border border-brand-border rounded-xl p-6 sm:p-8 shadow-sm space-y-6"
+      {loading ? (
+        <div className="py-24 text-center text-xs font-mono text-brand-muted">
+          SYNCHRONIZING ATELIER LEDGER...
+        </div>
+      ) : orders.length === 0 ? (
+        <div className="py-24 text-center max-w-sm mx-auto space-y-4">
+          <p className="font-serif text-lg text-brand-text">No dispatches found</p>
+          <p className="text-xs text-brand-muted">
+            You haven’t placed an order yet. Explore our latest runway collection.
+          </p>
+          <Link
+            href="/shop"
+            className="inline-block px-6 py-2.5 bg-brand-text text-white text-xs uppercase tracking-luxury rounded font-medium hover:bg-brand-dark transition-colors"
           >
-            {/* Order Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-brand-border">
-              <div className="space-y-1">
-                <div className="flex items-center space-x-3">
-                  <span className="font-mono text-base font-bold text-brand-text">
-                    {order.orderNumber}
-                  </span>
-                  <span
-                    className={`text-[10px] font-mono uppercase tracking-wider px-2.5 py-0.5 rounded-full border font-semibold ${getStatusBadge(
-                      order.orderStatus
-                    )}`}
-                  >
-                    {order.orderStatus}
-                  </span>
-                </div>
-                <p className="text-[11px] text-brand-muted font-mono">
-                  Placed on {new Date(order.createdAt).toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric",
-                  })}
-                </p>
-              </div>
+            Browse Collections
+          </Link>
+        </div>
+      ) : (
+        <div className="space-y-8 mt-8">
+          {orders.map((order) => {
+            const badge = getStatusBadge(order.orderStatus);
+            const BadgeIcon = badge.icon;
 
-              <div className="text-right">
-                <span className="text-[10px] font-mono uppercase text-brand-muted block">
-                  Total Value
-                </span>
-                <span className="font-mono text-base font-bold text-brand-text">
-                  ${order.total.toFixed(2)}
-                </span>
-              </div>
-            </div>
-
-            {/* Tracking Progress Bar */}
-            <div className="py-2">
-              <div className="grid grid-cols-4 gap-2 text-center text-[10px] font-mono uppercase tracking-wider text-brand-muted mb-2">
-                <span className="text-brand-text font-semibold flex items-center justify-center space-x-1">
-                  <CheckCircle className="w-3 h-3 text-green-600" />
-                  <span>Confirmed</span>
-                </span>
-                <span className="text-brand-text font-semibold flex items-center justify-center space-x-1">
-                  <Clock className="w-3 h-3 text-amber-600" />
-                  <span>Processing</span>
-                </span>
-                <span className="flex items-center justify-center space-x-1">
-                  <Truck className="w-3 h-3" />
-                  <span>Dispatched</span>
-                </span>
-                <span>Delivered</span>
-              </div>
-              <div className="w-full h-1.5 bg-neutral-200 rounded-full overflow-hidden">
-                <div className="h-full bg-brand-text rounded-full w-1/2" />
-              </div>
-            </div>
-
-            {/* Order Items */}
-            <div className="space-y-3 pt-2">
-              {order.items.map((item) => (
-                <div
-                  key={item.cartItemId}
-                  className="flex items-center space-x-4 bg-brand-card/40 p-3 rounded-lg border border-brand-border/60"
-                >
-                  <div className="relative w-14 h-16 bg-white rounded overflow-hidden shrink-0 border border-brand-border/60">
-                    <Image
-                      src={item.image}
-                      alt={item.name}
-                      fill
-                      className="object-cover"
-                      sizes="56px"
-                    />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <Link
-                      href={`/products/${item.slug}`}
-                      className="font-serif text-xs font-medium text-brand-text hover:text-brand-accent transition-colors truncate block"
-                    >
-                      {item.name}
-                    </Link>
-                    <p className="text-[10px] text-brand-muted font-mono">
-                      Color: {item.color} • Size: {item.size} • Qty: {item.quantity}
+            return (
+              <div
+                key={order.id}
+                className="bg-white border border-brand-border rounded-xl p-6 sm:p-8 shadow-sm space-y-6"
+              >
+                {/* Header Row */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-brand-border">
+                  <div>
+                    <div className="flex items-center space-x-3">
+                      <span className="font-mono text-sm font-bold text-brand-text">
+                        {order.orderNumber}
+                      </span>
+                      <span
+                        className={`inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono uppercase font-semibold border ${badge.bg}`}
+                      >
+                        <BadgeIcon className="w-3 h-3" />
+                        <span>{badge.label}</span>
+                      </span>
+                    </div>
+                    <p className="text-[11px] font-mono text-brand-muted mt-1">
+                      Placed on {new Date(order.createdAt).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
                     </p>
                   </div>
-                  <span className="font-mono text-xs font-semibold text-brand-text">
-                    ${(item.price * item.quantity).toFixed(2)}
-                  </span>
-                </div>
-              ))}
-            </div>
 
-            {/* Delivery Meta */}
-            <div className="pt-2 text-[11px] text-brand-muted flex flex-col sm:flex-row justify-between border-t border-brand-border gap-2">
-              <span>
-                Shipping to: {order.customer.fullName}, {order.customer.city},{" "}
-                {order.customer.country}
-              </span>
-              <span className="font-mono">
-                Payment: {order.paymentMethod.toUpperCase()} ({order.paymentStatus.toUpperCase()})
-              </span>
-            </div>
-          </div>
-        ))}
-      </div>
+                  <div className="text-left sm:text-right">
+                    <span className="text-[10px] font-mono uppercase text-brand-muted block">
+                      Total Authorized
+                    </span>
+                    <span className="font-mono text-base font-bold text-brand-text">
+                      ${order.total.toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Items List */}
+                <div className="divide-y divide-brand-border/60">
+                  {order.items.map((item, idx) => (
+                    <div
+                      key={idx}
+                      className="py-4 flex items-center justify-between gap-4 text-xs"
+                    >
+                      <div className="flex items-center space-x-4">
+                        <div className="relative w-16 h-20 bg-brand-card rounded overflow-hidden shrink-0 border border-brand-border">
+                          <Image
+                            src={item.image}
+                            alt={item.name}
+                            fill
+                            className="object-cover"
+                            sizes="64px"
+                          />
+                        </div>
+                        <div>
+                          <Link
+                            href={`/products/${item.slug}`}
+                            className="font-serif text-sm font-medium text-brand-text hover:text-brand-accent transition-colors"
+                          >
+                            {item.name}
+                          </Link>
+                          <p className="text-[11px] text-brand-muted font-sans mt-0.5">
+                            Color: {item.color} • Size: {item.size} • Qty: {item.quantity}
+                          </p>
+                          <p className="font-mono text-[11px] text-brand-muted mt-1">
+                            Unit Price: ${item.price.toFixed(2)}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="text-right">
+                        <span className="font-mono font-semibold text-brand-text">
+                          ${(item.price * item.quantity).toFixed(2)}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Shipping & Payment Meta Footer */}
+                <div className="pt-4 border-t border-brand-border grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs text-brand-muted">
+                  <div>
+                    <span className="font-mono text-[10px] uppercase font-bold text-brand-text block mb-1">
+                      Destination
+                    </span>
+                    <p>
+                      {order.customer.fullName}<br />
+                      {order.customer.addressLine1}, {order.customer.city}, {order.customer.country}
+                    </p>
+                  </div>
+
+                  <div>
+                    <span className="font-mono text-[10px] uppercase font-bold text-brand-text block mb-1">
+                      Settlement Details
+                    </span>
+                    <p className="font-mono uppercase">
+                      Method: {order.paymentMethod} • Status: {order.paymentStatus}
+                    </p>
+                    <p className="text-[10px] text-neutral-500 mt-1">
+                      Priority dispatch via TCS Express (Domestic) / DHL Express (International).
+                    </p>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
-
