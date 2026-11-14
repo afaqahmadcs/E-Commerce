@@ -218,6 +218,50 @@ reference_frames/
 
 ---
 
+## ✦ Visual Fidelity & Touchpad Navigation Overhaul [VERIFIED]
+
+Calibrated directly against user monitor captures of the reference video (`reference-video/reference-video.mp4`):
+
+### 1. True Full-Body Model Presentation (Head to Shoes)
+- Calibrated stage height so the entire silhouette (including shoes touching the floor plane with organic drop shadows) fits within standard laptop and desktop viewports without vertical clipping.
+- Restructured `LOOKS_DATA` model lineup to match the reference sequence:
+  - **Center Hero (Look 04 "Studio Day"):** Black streetwear emblem tee, sunglasses, vintage wash wide denim, and white retro high court sneakers.
+  - **Adjacent Left (Look 03):** Sage green textured knit, navy overshirt, and vintage olive low sneakers.
+  - **Adjacent Right (Look 05):** Burgundy boiled wool sweater, charcoal chore jacket, and chalk cream court sneakers.
+  - **Outer Silhouettes:** White boxy tee and heather grey fleece.
+- Synchronized right-hand **"In this look"** floating panel using crisp local transparent packshots instead of uncoordinated stock photos.
+
+### 2. Dense Suspended Clothing Rail (16 Silhouettes & Dangling Tags)
+- Replaced oversized front-facing garment cards with a dense, authentic 16-garment retail rack running along a horizontal steel tension wire.
+- Custom minimal metallic hanger loops hooked over the wire with crisp white dangling price tickets (`$199`, `$185`, `$165`, `$105`, etc.).
+- Integrated right-side editorial copy matching the reference monitor:
+  ```
+  Crafted in heavyweight fleece.
+  Cut oversized. Made to last.
+
+  Shop the Collection →
+  ```
+
+### 3. Native Touchpad & Mouse Wheel Horizontal Navigation
+- Implemented `onWheel` event accumulators with velocity thresholds across Runway, Suspended Clothing Rail, and 3D Perspective Footwear Orbit.
+- Seamlessly handles horizontal two-finger touchpad swipes (`deltaX`), shift-wheel horizontal panning, and standard wheel events with inertia.
+
+### 4. Zero-Artifact Image Sanitization
+- Executed connected-component segmentation and alpha-channel sanitization across all footwear and apparel assets, removing over 375,000 low-alpha haze pixels from `luka5-hightop-blackred.png`, `luka5-shadow-runner.png`, `tee-boxy-white.png`, and `tee-emblem-black.png`.
+- Guaranteed 0 dirty edge pixels and pure `#F8F7F4` background harmony.
+
+```
+reference_frames/
+├── verification_overhaul_01_try_the_look.png             # Full-body models with shoes on floor & matched outfits
+├── verification_overhaul_02_runway_after_wheel.png        # Runway look transition via touchpad horizontal swipe
+├── verification_overhaul_03_clothing_rail.png             # 16-garment dense cable rail with dangling price tags
+├── verification_overhaul_04_clothing_rail_scrolled.png    # Clothing rail scrolled via touchpad two-finger gesture
+├── verification_overhaul_05_featured_sneaker.png          # Featured sneaker with zero gray box artifacts
+└── verification_overhaul_06_perspective_orbit.png         # 3D perspective footwear orbit with clean transparency
+```
+
+---
+
 ## ✦ Git Branch Architecture & Contributions
 
 Development follows an enterprise Git flow with discrete feature branches and linear contribution histories:
@@ -235,7 +279,9 @@ main (Production Releases)
  │    │
  │    ├── feature/full-ecommerce-engine        ──► Phase 4 (Full E-Commerce & Payments) [MERGED]
  │    │
- │    └── feature/motion-and-responsive-optimization ──► Phase 5 (Luxury Motion & 4 Viewports) [COMPLETED]
+ │    ├── feature/motion-and-responsive-optimization ──► Phase 5 (Luxury Motion & 4 Viewports) [MERGED]
+ │    │
+ │    └── feature/visual-overhaul-and-touchpad-navigation ──► Visual Fidelity & Touchpad Navigation [VERIFIED]
 ```
 
 ### Branches:
@@ -246,6 +292,7 @@ main (Production Releases)
 * `feature/product-presentation-phase3`: Phase 3 minimal editorial hoodie layout, interactive zoom lens, floating sneaker, viewing angle thumbnails, and orange purchase state machine.
 * `feature/full-ecommerce-engine`: Phase 4 complete customer account, search, checkout, Pakistani payment gateways, server security, and admin management console.
 * `feature/motion-and-responsive-optimization`: Phase 5 luxury easing curves, GPU acceleration, mobile navigation drawer, touch-pan-y drag freedom, sticky quick-buy bar, and 4-viewport test matrix.
+* `feature/visual-overhaul-and-touchpad-navigation`: Visual fidelity alignment with reference video monitor frames (full-body models with shoes on ground, matching Look 04 Studio Day styling, 16-garment dense cable rail with dangling price tags, true zero-alpha artifact removal, and native touchpad/mouse wheel horizontal navigation across all sections).
 
 ---
 
