@@ -45,3 +45,4 @@ export function useIntersectionAnimation<T extends HTMLElement = HTMLDivElement>
 
   return { elementRef, isVisible };
 }
+

@@ -183,3 +183,4 @@ export const imageCrossfadeVariants: Variants = {
     transition: { duration: 0.2, ease: SNAPPY_EASE },
   },
 };
+

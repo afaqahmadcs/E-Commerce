@@ -60,3 +60,4 @@ function getEdgePath() {
   await browser.close();
   console.log('All interaction tests passed!');
 })();
+
