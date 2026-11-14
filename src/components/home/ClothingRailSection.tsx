@@ -17,6 +17,7 @@ const EXTENDED_RAIL_DATA: HangingGarment[] = [
     id: "g-13",
     name: "Archival Washed Midnight Hoodie",
     priceTag: "$199",
+    imageHanging: "/garments/hoodie-side-grey.png",
     hangerIndex: 13,
   },
   {
@@ -24,6 +25,7 @@ const EXTENDED_RAIL_DATA: HangingGarment[] = [
     id: "g-14",
     name: "Pine Green Heavy Fleece Hoodie",
     priceTag: "$185",
+    imageHanging: "/garments/hoodie-side-green.png",
     hangerIndex: 14,
   },
   {
@@ -31,13 +33,15 @@ const EXTENDED_RAIL_DATA: HangingGarment[] = [
     id: "g-15",
     name: "Heavyweight Boxy Fleece Hoodie",
     priceTag: "$195",
+    imageHanging: "/garments/hoodie-side-charcoal.png",
     hangerIndex: 15,
   },
   {
-    ...GARMENTS_DATA[11],
+    ...GARMENTS_DATA[10],
     id: "g-16",
     name: "AFAQ Emblem Boxy Tee Black",
-    priceTag: "$105",
+    priceTag: "$95",
+    imageHanging: "/garments/tee-side-black.png",
     hangerIndex: 16,
   },
 ];
@@ -87,12 +91,12 @@ export function ClothingRailSection() {
 
   // Touchpad two-finger horizontal scroll & mouse wheel navigation
   const handleWheel = useCallback((e: React.WheelEvent) => {
-    const isHorizontal = Math.abs(e.deltaX) > Math.abs(e.deltaY);
-    const delta = isHorizontal ? e.deltaX : (e.shiftKey ? e.deltaY : e.deltaX || e.deltaY * 0.7);
+    // Check horizontal touchpad swipe or shift-wheel or mouse deltaX
+    const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : (e.shiftKey ? e.deltaY : (Math.abs(e.deltaX) > 1 ? e.deltaX : 0));
 
-    if (Math.abs(delta) > 2) {
+    if (Math.abs(delta) > 1) {
       const current = x.get();
-      let target = current - delta * 1.3;
+      let target = current - delta * 1.6;
       target = Math.max(constraints.left, Math.min(0, target));
       x.set(target);
     }
@@ -203,15 +207,15 @@ export function ClothingRailSection() {
                 </div>
 
                 {/* 3. Authentic Compact Hanging Garment Silhouette */}
-                <div className="relative w-28 sm:w-32 md:w-36 h-48 sm:h-56 md:h-60 flex items-start justify-center">
+                <div className="relative w-20 sm:w-24 md:w-28 h-48 sm:h-56 md:h-64 flex items-start justify-center">
                   <Image
-                    src={garment.imageFront}
+                    src={garment.imageHanging || garment.imageFront}
                     alt={garment.name}
                     width={320}
                     height={600}
                     priority={index < 8}
-                    className="w-auto h-full object-contain object-top drop-shadow-[0_8px_18px_rgba(0,0,0,0.07)] transition-transform duration-300 group-hover:scale-103"
-                    sizes="(max-width: 640px) 120px, (max-width: 1024px) 140px, 160px"
+                    className="w-auto h-full object-contain object-top drop-shadow-[0_8px_18px_rgba(0,0,0,0.07)] transition-transform duration-300 group-hover:scale-105"
+                    sizes="(max-width: 640px) 100px, (max-width: 1024px) 120px, 140px"
                   />
 
                   {/* Gentle Floating Inspect Badge on Hover */}

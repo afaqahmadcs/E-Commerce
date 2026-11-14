@@ -15,8 +15,7 @@ export function TryTheLookHero() {
   const [addedOutfit, setAddedOutfit] = useState(false);
   const [windowWidth, setWindowWidth] = useState(1200);
   const isDraggingRef = useRef(false);
-  const wheelAccumulatorRef = useRef(0);
-  const wheelTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const lastWheelTriggerRef = useRef(0);
 
   const shouldReduceMotion = useReducedMotion();
   const { addItem, openDrawer } = useCartStore();
@@ -49,27 +48,19 @@ export function TryTheLookHero() {
 
   // Touchpad two-finger swipe & mouse wheel horizontal navigation
   const handleWheel = useCallback((e: React.WheelEvent) => {
-    // Check horizontal swipe on touchpad (e.deltaX) or shiftKey wheel
-    const isHorizontal = Math.abs(e.deltaX) > Math.abs(e.deltaY);
-    const delta = isHorizontal ? e.deltaX : (e.shiftKey ? e.deltaY : (Math.abs(e.deltaY) > 28 ? e.deltaY : 0));
+    const now = Date.now();
+    if (now - lastWheelTriggerRef.current < 320) return;
 
-    if (Math.abs(delta) > 6) {
-      wheelAccumulatorRef.current += delta;
-
-      if (Math.abs(wheelAccumulatorRef.current) > 30) {
-        if (wheelAccumulatorRef.current > 0) {
-          handleNext();
-        } else {
-          handlePrev();
-        }
-        wheelAccumulatorRef.current = 0;
-      }
+    // Detect horizontal touchpad swipe or Shift+wheel
+    if (Math.abs(e.deltaX) > 8) {
+      if (e.deltaX > 0) handleNext();
+      else handlePrev();
+      lastWheelTriggerRef.current = now;
+    } else if (e.shiftKey && Math.abs(e.deltaY) > 8) {
+      if (e.deltaY > 0) handleNext();
+      else handlePrev();
+      lastWheelTriggerRef.current = now;
     }
-
-    if (wheelTimerRef.current) clearTimeout(wheelTimerRef.current);
-    wheelTimerRef.current = setTimeout(() => {
-      wheelAccumulatorRef.current = 0;
-    }, 160);
   }, [handleNext, handlePrev]);
 
   // Keyboard navigation
@@ -93,10 +84,10 @@ export function TryTheLookHero() {
   };
 
   const handleDragEnd = (_e: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-    const threshold = 20;
-    if (info.offset.x < -threshold || info.velocity.x < -120) {
+    const threshold = 18;
+    if (info.offset.x < -threshold || info.velocity.x < -60) {
       handleNext();
-    } else if (info.offset.x > threshold || info.velocity.x > 120) {
+    } else if (info.offset.x > threshold || info.velocity.x > 60) {
       handlePrev();
     }
 
@@ -138,13 +129,13 @@ export function TryTheLookHero() {
     }, 450);
   };
 
-  // Viewport calibrated horizontal spacing
-  const modelSpacing = windowWidth < 640 ? 150 : windowWidth < 1024 ? 190 : 230;
+  // Viewport calibrated horizontal spacing: allows 5 models visible simultaneously
+  const modelSpacing = windowWidth < 640 ? 110 : windowWidth < 1024 ? 135 : 160;
 
   return (
     <section 
       onWheel={handleWheel}
-      className="relative w-full h-[calc(100vh-68px)] min-h-[580px] max-h-[820px] bg-[#F8F7F4] flex flex-col justify-between overflow-hidden border-b border-brand-border select-none"
+      className="relative w-full min-h-[560px] lg:min-h-[620px] max-h-[850px] bg-[#F8F7F4] flex flex-col justify-between overflow-hidden border-b border-brand-border select-none"
     >
       {/* Top Section Header (Matches Reference 00.5s) */}
       <div className="pt-4 sm:pt-6 px-5 sm:px-10 lg:px-12 max-w-7xl mx-auto w-full z-20 flex justify-between items-start">
@@ -222,11 +213,11 @@ export function TryTheLookHero() {
         <motion.div
           drag="x"
           dragConstraints={{ left: 0, right: 0 }}
-          dragElastic={0.12}
+          dragElastic={0.25}
           onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
           style={{ touchAction: "pan-y" }}
-          className="relative flex-1 w-full h-[380px] sm:h-[460px] md:h-[500px] flex items-end justify-center cursor-grab active:cursor-grabbing overflow-visible touch-pan-y"
+          className="relative flex-1 w-full h-[320px] sm:h-[390px] md:h-[440px] lg:h-[480px] max-h-[52vh] flex items-end justify-center cursor-grab active:cursor-grabbing overflow-visible touch-pan-y"
         >
           {LOOKS_DATA.map((look, index) => {
             const offset = index - activeLookIndex;
@@ -235,42 +226,42 @@ export function TryTheLookHero() {
 
             const targetX = offset * modelSpacing;
 
-            // Scale calculations: Center is 1.10x, +/-1 is 0.88x, +/-2 is 0.72x
-            let scale = 1.10;
+            // Scale calculations: Center is 1.05x, +/-1 is 0.90x, +/-2 is 0.78x
+            let scale = 1.05;
             let opacity = 1;
             let zIndex = 30;
             let blurAmount = 0;
 
             if (isIsolated) {
               if (isCenter) {
-                scale = 1.16;
+                scale = 1.12;
                 opacity = 1;
                 zIndex = 40;
                 blurAmount = 0;
               } else {
-                scale = 0.80;
+                scale = 0.75;
                 opacity = 0;
                 zIndex = 0;
                 blurAmount = 4;
               }
             } else {
               if (absOffset === 0) {
-                scale = 1.10;
+                scale = 1.05;
                 opacity = 1;
                 zIndex = 30;
                 blurAmount = 0;
               } else if (absOffset === 1) {
-                scale = 0.88;
-                opacity = 0.85;
+                scale = 0.90;
+                opacity = 0.88;
                 zIndex = 20;
                 blurAmount = 0;
               } else if (absOffset === 2) {
-                scale = 0.72;
+                scale = 0.78;
                 opacity = 0.45;
                 zIndex = 10;
                 blurAmount = 1.2;
               } else {
-                scale = 0.60;
+                scale = 0.65;
                 opacity = 0.15;
                 zIndex = 5;
                 blurAmount = 3;
@@ -299,11 +290,11 @@ export function TryTheLookHero() {
                 className="absolute bottom-2 flex flex-col items-center justify-end group pointer-events-auto cursor-pointer"
               >
                 {/* Full-Body Model Figure with shoes on the floor */}
-                <div className="relative w-44 sm:w-56 md:w-64 h-[350px] sm:h-[430px] md:h-[470px] flex items-end justify-center">
+                <div className="relative w-36 sm:w-44 md:w-50 lg:w-54 h-[300px] sm:h-[370px] md:h-[410px] lg:h-[450px] max-h-[50vh] flex items-end justify-center">
                   {/* Organic Ground Contact Shadow */}
                   <div
-                    className={`absolute bottom-0 left-1/2 -translate-x-1/2 w-32 sm:w-44 h-4 rounded-full blur-[8px] pointer-events-none transform scale-y-45 transition-all duration-700 ${
-                      isCenter ? "bg-black/35 blur-[9px]" : "bg-black/15 blur-[5px]"
+                    className={`absolute bottom-0 left-1/2 -translate-x-1/2 w-28 sm:w-36 h-3 rounded-full blur-[6px] pointer-events-none transform scale-y-45 transition-all duration-700 ${
+                      isCenter ? "bg-black/35 blur-[8px]" : "bg-black/15 blur-[4px]"
                     }`}
                   />
 
@@ -314,9 +305,9 @@ export function TryTheLookHero() {
                       alt={look.title}
                       width={380}
                       height={1000}
-                      priority={isCenter || absOffset === 1}
+                      priority={isCenter || absOffset <= 2}
                       className="w-auto h-full object-contain object-bottom drop-shadow-[0_4px_16px_rgba(0,0,0,0.06)]"
-                      sizes="(max-width: 640px) 190px, (max-width: 1024px) 250px, 340px"
+                      sizes="(max-width: 640px) 160px, (max-width: 1024px) 210px, 260px"
                     />
                   </div>
 
@@ -401,15 +392,15 @@ export function TryTheLookHero() {
         {/* Right Docked Panel: "IN THIS LOOK" (Matching Reference Video Image 6) */}
         <motion.div
           layout
-          className="w-full lg:w-[320px] xl:w-[340px] bg-white/90 backdrop-blur-md border border-brand-border/80 rounded-2xl p-4 sm:p-5 shadow-sm mt-3 lg:mt-0 space-y-4 z-20 shrink-0"
+          className="w-full lg:w-[290px] xl:w-[310px] bg-white/95 backdrop-blur-md border border-brand-border/80 rounded-2xl p-3.5 sm:p-4 shadow-sm mt-2 lg:mt-0 space-y-2.5 z-20 shrink-0"
         >
           {/* Header */}
-          <div className="flex items-center justify-between pb-2.5 border-b border-brand-border/70">
+          <div className="flex items-center justify-between pb-2 border-b border-brand-border/70">
             <div>
               <span className="text-[10px] font-mono tracking-widest uppercase text-brand-accent font-semibold block">
                 LOOK {currentLook.lookNumber}
               </span>
-              <h3 className="font-serif text-base sm:text-lg font-medium text-brand-text">
+              <h3 className="font-serif text-base font-medium text-brand-text">
                 {currentLook.title}
               </h3>
             </div>
@@ -419,7 +410,7 @@ export function TryTheLookHero() {
           </div>
 
           {/* Outfit Items List */}
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <AnimatePresence mode="wait">
               <motion.div
                 key={currentLook.id}
@@ -427,7 +418,7 @@ export function TryTheLookHero() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -6 }}
                 transition={{ duration: shouldReduceMotion ? 0.05 : 0.25 }}
-                className="space-y-2"
+                className="space-y-1.5"
               >
                 {currentLook.items.map((item) => {
                   const isHighlighted = activeHotspot === item.id;
@@ -436,26 +427,26 @@ export function TryTheLookHero() {
                       key={item.id}
                       onMouseEnter={() => setActiveHotspot(item.id)}
                       onMouseLeave={() => setActiveHotspot(null)}
-                      className={`flex items-center space-x-3 p-2 rounded-xl border transition-all group ${
+                      className={`flex items-center space-x-2.5 p-1.5 rounded-xl border transition-all group ${
                         isHighlighted
                           ? "bg-brand-accent/5 border-brand-accent/40 shadow-sm"
                           : "bg-[#FAFAF8] border-brand-border/60 hover:border-brand-border hover:bg-white"
                       }`}
                     >
                       {/* Product Thumbnail (Clean cutout on card) */}
-                      <div className="relative w-12 h-12 bg-white rounded-lg overflow-hidden shrink-0 border border-brand-border/40 p-1 flex items-center justify-center">
+                      <div className="relative w-10 h-10 bg-white rounded-lg overflow-hidden shrink-0 border border-brand-border/40 p-0.5 flex items-center justify-center">
                         <Image
                           src={item.image}
                           alt={item.name}
                           fill
-                          className="object-contain p-1 group-hover:scale-105 transition-transform duration-300"
-                          sizes="48px"
+                          className="object-contain p-0.5 group-hover:scale-105 transition-transform duration-300"
+                          sizes="40px"
                         />
                       </div>
 
                       {/* Product Metadata */}
                       <div className="flex-1 min-w-0">
-                        <span className="text-[9px] uppercase tracking-wider text-brand-muted font-medium block">
+                        <span className="text-[8px] uppercase tracking-wider text-brand-muted font-medium block">
                           {item.category}
                         </span>
                         <Link
@@ -464,7 +455,7 @@ export function TryTheLookHero() {
                         >
                           {item.name}
                         </Link>
-                        <p className="text-xs font-mono font-semibold text-brand-text mt-0.5">
+                        <p className="text-[11px] font-mono font-semibold text-brand-text">
                           ${item.price.toFixed(2)}
                         </p>
                       </div>
@@ -472,7 +463,7 @@ export function TryTheLookHero() {
                       {/* View Action Icon */}
                       <Link
                         href={`/products/${item.productSlug}`}
-                        className="p-1.5 text-brand-muted hover:text-brand-text transition-colors"
+                        className="p-1 text-brand-muted hover:text-brand-text transition-colors"
                         aria-label={`View ${item.name}`}
                       >
                         <Eye className="w-3.5 h-3.5" />
@@ -485,28 +476,28 @@ export function TryTheLookHero() {
           </div>
 
           {/* Pricing Bundle & Action Button */}
-          <div className="pt-2.5 border-t border-brand-border/70 space-y-2.5">
+          <div className="pt-2 border-t border-brand-border/70 space-y-2">
             <div className="flex items-center justify-between text-xs">
-              <span className="text-brand-muted font-sans text-[11px]">Complete the look</span>
+              <span className="text-brand-muted font-sans text-[10px]">Complete the look</span>
               <div className="text-right">
-                <span className="text-brand-muted line-through mr-1.5 font-mono text-[10px]">
+                <span className="text-brand-muted line-through mr-1.5 font-mono text-[9px]">
                   ${originalTotal.toFixed(2)}
                 </span>
-                <span className="font-mono font-bold text-xs sm:text-sm text-brand-text">
+                <span className="font-mono font-bold text-xs text-brand-text">
                   ${discountedTotal.toFixed(2)}
                 </span>
               </div>
             </div>
 
-            <div className="flex items-center space-x-1.5 text-[10px] text-brand-accent font-medium">
-              <Sparkles className="w-3 h-3" />
+            <div className="flex items-center space-x-1.5 text-[9px] text-brand-accent font-medium">
+              <Sparkles className="w-2.5 h-2.5" />
               <span>Bundle of 3 items saves {currentLook.discountPercentage}%</span>
             </div>
 
             {/* Add full look to bag CTA */}
             <button
               onClick={handleAddFullLook}
-              className={`w-full py-3 px-4 rounded-xl text-xs uppercase tracking-luxury font-medium transition-all flex items-center justify-center space-x-2 shadow-sm ${
+              className={`w-full py-2.5 px-3 rounded-xl text-[11px] uppercase tracking-luxury font-medium transition-all flex items-center justify-center space-x-2 shadow-sm ${
                 addedOutfit
                   ? "bg-brand-accent text-white shadow-brand-accent/20"
                   : "bg-brand-text hover:bg-black text-white shadow-md hover:shadow-lg"

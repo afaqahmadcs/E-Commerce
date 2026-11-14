@@ -72,6 +72,7 @@ export interface HangingGarment {
   color: string;
   imageFront: string;
   imageBack?: string;
+  imageHanging?: string;
   availableSizes: string[];
   description: string;
   tagline: string;
