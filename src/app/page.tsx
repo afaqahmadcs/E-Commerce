@@ -4,22 +4,24 @@ import { SneakerPerspectiveSection } from "@/components/home/SneakerPerspectiveS
 import { FeaturedSneakerSection } from "@/components/home/FeaturedSneakerSection";
 import { CategoryGrid } from "@/components/home/CategoryGrid";
 import { CuratedDrops } from "@/components/home/CuratedDrops";
+import { EditorialBanners } from "@/components/home/EditorialBanners";
 import { BrandEditorial } from "@/components/home/BrandEditorial";
 import { CommunityGrid } from "@/components/home/CommunityGrid";
+import { NewsletterSection } from "@/components/home/NewsletterSection";
 
 export default function HomePage() {
   return (
     <main className="min-h-screen bg-[#F8F7F4] flex flex-col">
-      {/* 1. Signature Hero: TRY THE LOOK (Reference 00.0s – 05.5s) */}
+      {/* 1. Signature Hero: TRY THE LOOK Interactive Runway (Reference 00.0s – 05.5s) */}
       <TryTheLookHero />
 
-      {/* 2. Signature Rail: Horizontal Clothing Collection Strip (Reference 05.5s – 08.0s) */}
+      {/* 2. Signature Rail: Suspended Horizontal Clothing Collection Strip (Reference 05.5s – 08.0s) */}
       <ClothingRailSection />
 
-      {/* 3. Signature Featured Sneaker Purchasing Interface (Reference 13.5s – 16.5s) */}
+      {/* 3. Signature Featured Sneaker Detail & Purchasing Interface (Reference 13.5s – 16.5s) */}
       <FeaturedSneakerSection />
 
-      {/* 4. Signature 3D Perspective Footwear Gallery (Reference 11.5s – 13.5s) */}
+      {/* 4. Signature 3D Perspective Footwear Gallery Orbit (Reference 11.5s – 13.5s) */}
       <SneakerPerspectiveSection />
 
       {/* 5. Category Architecture */}
@@ -28,11 +30,17 @@ export default function HomePage() {
       {/* 6. Seasonal Best Sellers & Curated Drops */}
       <CuratedDrops />
 
-      {/* 7. Brand Editorial Manifesto */}
+      {/* 7. Editorial Campaign Banners */}
+      <EditorialBanners />
+
+      {/* 8. Brand Editorial Manifesto & Atelier Craftsmanship */}
       <BrandEditorial />
 
-      {/* 8. Curated Community Looks */}
+      {/* 9. Curated Community Looks */}
       <CommunityGrid />
+
+      {/* 10. Private Atelier Newsletter Dispatch */}
+      <NewsletterSection />
     </main>
   );
 }
