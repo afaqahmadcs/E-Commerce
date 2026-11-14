@@ -117,7 +117,13 @@ export interface CustomerAddress {
   country: string;
 }
 
-export type PaymentMethod = "cod" | "bank_transfer" | "card_online";
+export type PaymentMethod =
+  | "cod"
+  | "bank_transfer"
+  | "card_online"
+  | "jazzcash"
+  | "easypaisa"
+  | "kuickpay";
 
 export interface Order {
   id: string;
