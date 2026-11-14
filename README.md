@@ -97,6 +97,33 @@ Phase 1 recreates the initial fashion runway sequence from the reference video w
 
 ---
 
+## ✦ Phase 2 — Premium Image Acquisition & Asset Library [VERIFIED]
+
+Phase 2 replaces all external and temporary placeholder photography with an exhaustive, high-resolution, unwatermarked local asset library stored directly in the repository:
+
+* **88 High-Resolution Categorized Local Assets:**
+  * **Fashion Models (12):** Full-body male and female models in neutral studio streetwear (`public/images/models/model_01.jpg` – `model_12.jpg`).
+  * **Clothing (24):** Heavyweight hoodies, streetwear shirts, tailored trousers, and outerwear jackets (`public/images/products/`).
+  * **Footwear (14):** Luxury lifestyle court runners and trainers (`public/images/products/sneakers/`).
+  * **Leather Goods & Accessories (10):** Full-grain weekender duffles, totes, cardholders, and watches (`public/images/products/accessories/`).
+  * **Urban Streetwear Lifestyle (10):** High-fashion editorial lookbook photos (`public/images/lifestyle/`).
+  * **Atelier Craftsmanship (8):** Loom weaving, pattern cutting, and workshop visuals (`public/images/campaigns/`).
+  * **Collection Banners (10):** Editorial banners and covers (`public/images/collections/`, `public/images/banners/`).
+* **Complete Image Asset Manifest:** Full documentation in [`IMAGE_ASSET_MANIFEST.md`](file:///d:/SMIT%20Projects/E-Commerce/IMAGE_ASSET_MANIFEST.md) recording filename, category, resolution, file size, license, and website section.
+* **Authentic Side-Profile Hanging Garment Silhouettes:**
+  * Created 9 authentic side-profile hanging garments (`hoodie-side-grey.png`, `hoodie-side-charcoal.png`, `hoodie-side-cream.png`, `hoodie-side-green.png`, `jacket-side-navy.png`, `tee-side-black.png`, `tee-side-white.png`, `sweater-side-olive.png`, `sweater-side-burgundy.png`) matching the reference video (Image 5).
+  * Rendered as slender hanging silhouettes with precision steel loop hooks and dangling white price tags.
+* **Full-Body Runway Proportions & Responsive Touchpad/Mouse Movement:**
+  * Models calibrated to 100% full-body head-to-toe with soft ground shadows.
+  * Responsive viewport scaling (`max-h-[50vh]`) guaranteeing no bottom clipping on laptop screens (600px–768px height).
+  * 5 models displayed simultaneously in a balanced composition with soft distance blur.
+  * Fluid mouse drag (`dragElastic={0.25}`) and horizontal touchpad swipe (`e.deltaX`) navigation.
+* **Sneaker Haze Removal & 100% Local Catalog:**
+  * Cleaned 21 sneaker PNG assets of low-alpha background haze artifacts (zero grey boxes).
+  * Zero external Unsplash URLs across all 21 routes.
+
+---
+
 ## ✦ Phase 2 — Animated Hanging Clothing Rail [VERIFIED]
 
 Phase 2 replaces conventional e-commerce card grids with an architectural suspended clothing rail:
@@ -335,7 +362,9 @@ main (Production Releases)
  │    │
  │    ├── feature/phase6-final-audit-and-qa   ──► Phase 6 Final Reference Video Comparison & QA [MERGED]
  │    │
- │    └── feature/storefront-upgrade-phase1-audit-org ──► Storefront Upgrade Phase 1 (Audit & Org) [VERIFIED]
+ │    ├── feature/storefront-upgrade-phase1-audit-org ──► Storefront Upgrade Phase 1 (Audit & Org) [MERGED]
+ │    │
+ │    └── feature/phase2-image-acquisition-and-asset-library ──► Storefront Upgrade Phase 2 (Asset Library & Video Fidelity) [VERIFIED]
 ```
 
 ### Branches:
@@ -350,6 +379,7 @@ main (Production Releases)
 * `feature/perspective-sneakers-asset-replacement`: Complete overhaul of the 3D perspective footwear orbit replacing all mismatched card photos and hazy low-alpha cutouts with 7 high-resolution, solid-bodied, pure-transparent luxury streetwear sneakers.
 * `feature/phase6-final-audit-and-qa`: Phase 6 comprehensive reference video comparison, 12-stage automated browser QA suite, zero-error hydration hardening, and publication of `FINAL_AUDIT.md`.
 * `feature/storefront-upgrade-phase1-audit-org`: Storefront Upgrade Phase 1 inspection of all 21 routes, creation of `STOREFRONT_AUDIT.md`, modular architecture re-organization (`src/components/{storefront, products, ui, animations}`, `src/hooks`, `src/services`, `src/styles`, `public/images/`), and cataloging of missing assets.
+* `feature/phase2-image-acquisition-and-asset-library`: Storefront Upgrade Phase 2 downloading 88 high-resolution local images, eliminating all external Unsplash URLs, creating authentic side-profile hanging garments for the clothing rail, full-body head-to-toe model scaling with 5 models visible, responsive touchpad and mouse drag navigation, and eliminating all sneaker background haze artifacts.
 
 ---
 
