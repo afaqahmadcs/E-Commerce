@@ -8,7 +8,7 @@ export default function AboutPage() {
       {/* Editorial Hero */}
       <div className="relative w-full h-[60vh] bg-brand-dark flex items-center justify-center text-white overflow-hidden">
         <Image
-          src="https://images.unsplash.com/photo-1509967419530-da38b4704bc6?auto=format&fit=crop&w=1600&q=85"
+          src="/images/campaigns/campaign_08.jpg"
           alt="AFAQ SUPPLY Atelier Workshop"
           fill
           className="object-cover opacity-50"
@@ -89,7 +89,7 @@ export default function AboutPage() {
         {/* Studio Image & Quote */}
         <div className="relative aspect-[16/9] w-full rounded-xl overflow-hidden shadow-luxury border border-brand-border">
           <Image
-            src="https://images.unsplash.com/photo-1544022613-e87ca75a784a?auto=format&fit=crop&w=1400&q=85"
+            src="/images/campaigns/campaign_02.jpg"
             alt="Tailoring craftsmanship"
             fill
             className="object-cover"

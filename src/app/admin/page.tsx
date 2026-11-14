@@ -106,7 +106,7 @@ export default function AdminDashboardPage() {
                 price: 199,
                 color: "Heather Melange",
                 size: "L",
-                image: "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=300&q=80",
+                image: "/images/products/hoodies/hoodie_01.jpg",
                 quantity: 1,
                 maxStock: 10,
               },
@@ -141,7 +141,7 @@ export default function AdminDashboardPage() {
                 price: 149,
                 color: "Bone White / Red",
                 size: "EU 41",
-                image: "https://images.unsplash.com/photo-1552346154-21d32810aba3?auto=format&fit=crop&w=300&q=80",
+                image: "/sneakers/luka5-retro-high-bred.png",
                 quantity: 2,
                 maxStock: 15,
               },
@@ -236,10 +236,10 @@ export default function AdminDashboardPage() {
       isNewArrival: true,
       primaryImage:
         newProdImage ||
-        "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=800&q=85",
+        "/images/products/hoodies/hoodie_01.jpg",
       allImages: [
         newProdImage ||
-          "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=800&q=85",
+          "/images/products/hoodies/hoodie_01.jpg",
       ],
       availableColors: [{ name: "Standard", hex: "#151515", image: newProdImage || "" }],
       availableSizes: ["S", "M", "L", "XL"],
@@ -1164,7 +1164,7 @@ export default function AdminDashboardPage() {
                   type="url"
                   value={newProdImage}
                   onChange={(e) => setNewProdImage(e.target.value)}
-                  placeholder="https://images.unsplash.com/..."
+                  placeholder="/images/products/..."
                   className="w-full bg-white border border-brand-border p-2.5 rounded focus:outline-none font-mono"
                 />
               </div>

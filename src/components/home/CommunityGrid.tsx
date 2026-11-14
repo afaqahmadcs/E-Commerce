@@ -5,25 +5,25 @@ export function CommunityGrid() {
   const posts = [
     {
       id: "post-1",
-      image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=600&q=80",
+      image: "/images/lifestyle/lifestyle_01.jpg",
       handle: "@marcus.v",
       look: "Look 01 / Heavyweight Knit",
     },
     {
       id: "post-2",
-      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80",
+      image: "/images/lifestyle/lifestyle_02.jpg",
       handle: "@elena_noir",
       look: "Look 04 / Studio Day",
     },
     {
       id: "post-3",
-      image: "https://images.unsplash.com/photo-1552346154-21d32810aba3?auto=format&fit=crop&w=600&q=80",
+      image: "/images/lifestyle/lifestyle_05.jpg",
       handle: "@kenzo.style",
       look: "LUKA 5 / Archival Court",
     },
     {
       id: "post-4",
-      image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80",
+      image: "/images/lifestyle/lifestyle_06.jpg",
       handle: "@sora_collective",
       look: "Boxy Combed Tee / Ivory",
     },

@@ -38,7 +38,7 @@ export function BrandEditorial() {
         <div className="lg:col-span-6 relative flex justify-center">
           <div className="relative w-full max-w-md h-[480px] sm:h-[540px] rounded-xl overflow-hidden shadow-2xl border border-white/10">
             <Image
-              src="https://images.unsplash.com/photo-1509967419530-da38b4704bc6?auto=format&fit=crop&w=1000&q=85"
+              src="/images/campaigns/campaign_01.jpg"
               alt="AFAQ SUPPLY Archival Campaign"
               fill
               className="object-cover"
