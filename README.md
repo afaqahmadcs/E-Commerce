@@ -281,7 +281,9 @@ main (Production Releases)
  │    │
  │    ├── feature/motion-and-responsive-optimization ──► Phase 5 (Luxury Motion & 4 Viewports) [MERGED]
  │    │
- │    └── feature/visual-overhaul-and-touchpad-navigation ──► Visual Fidelity & Touchpad Navigation [VERIFIED]
+ │    ├── feature/visual-overhaul-and-touchpad-navigation ──► Visual Fidelity & Touchpad Navigation [MERGED]
+ │    │
+ │    └── feature/perspective-sneakers-asset-replacement ──► 3D Footwear Orbit Transparent Asset Overhaul [VERIFIED]
 ```
 
 ### Branches:
@@ -293,6 +295,7 @@ main (Production Releases)
 * `feature/full-ecommerce-engine`: Phase 4 complete customer account, search, checkout, Pakistani payment gateways, server security, and admin management console.
 * `feature/motion-and-responsive-optimization`: Phase 5 luxury easing curves, GPU acceleration, mobile navigation drawer, touch-pan-y drag freedom, sticky quick-buy bar, and 4-viewport test matrix.
 * `feature/visual-overhaul-and-touchpad-navigation`: Visual fidelity alignment with reference video monitor frames (full-body models with shoes on ground, matching Look 04 Studio Day styling, 16-garment dense cable rail with dangling price tags, true zero-alpha artifact removal, and native touchpad/mouse wheel horizontal navigation across all sections).
+* `feature/perspective-sneakers-asset-replacement`: Complete overhaul of the 3D perspective footwear orbit replacing all mismatched card photos and hazy low-alpha cutouts with 7 high-resolution, solid-bodied, pure-transparent luxury streetwear sneakers (Crimson Noir High, Court Pure White, Vintage Grey Suede, Suede Sand, Phantom Noir, Royal High Cobalt, and Stratus Indigo).
 
 ---
 
