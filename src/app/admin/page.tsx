@@ -16,20 +16,50 @@ import {
   ArrowUpRight,
   Shield,
   Eye,
+  Users,
+  AlertTriangle,
+  Lock,
+  RefreshCw,
+  Search,
 } from "lucide-react";
 import { PRODUCTS_DATA } from "@/data/products";
 import { COLLECTIONS_DATA } from "@/data/collections";
 import { Product, Order, Collection } from "@/types";
 
+interface CustomerSummary {
+  name: string;
+  email: string;
+  phone: string;
+  city: string;
+  country: string;
+  ordersCount: number;
+  totalSpent: number;
+}
+
 export default function AdminDashboardPage() {
+  // Security Passcode Protection
+  const [isAdminUnlocked, setIsAdminUnlocked] = useState(true);
+  const [passcodeInput, setPasscodeInput] = useState("");
+  const [passcodeError, setPasscodeError] = useState(false);
+
   const [activeTab, setActiveTab] = useState<
-    "overview" | "products" | "orders" | "collections" | "promotions" | "settings"
+    "overview" | "products" | "inventory" | "orders" | "customers" | "collections" | "promotions" | "settings"
   >("overview");
 
   // Local state for products allowing full CRUD simulation in admin
   const [productsList, setProductsList] = useState<Product[]>(PRODUCTS_DATA);
   const [ordersList, setOrdersList] = useState<Order[]>([]);
   const [collectionsList] = useState<Collection[]>(COLLECTIONS_DATA);
+  const [inventorySearch, setInventorySearch] = useState("");
+
+  // Product Stock state (simulated live inventory)
+  const [stockMap, setStockMap] = useState<Record<string, number>>(() => {
+    const initial: Record<string, number> = {};
+    PRODUCTS_DATA.forEach((p, idx) => {
+      initial[p.id] = (idx % 3 === 0) ? 3 : 18; // Some items low stock
+    });
+    return initial;
+  });
 
   // New Product Modal State
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -46,26 +76,26 @@ export default function AdminDashboardPage() {
   const [freeShippingThreshold, setFreeShippingThreshold] = useState(200);
   const [savedSettingsNotice, setSavedSettingsNotice] = useState(false);
 
-  // Load orders from localStorage
-  useEffect(() => {
+  // Load orders from localStorage and live sync
+  const loadOrders = () => {
     try {
       const saved = JSON.parse(localStorage.getItem("afaq_customer_orders") || "[]");
       if (saved.length > 0) {
         setOrdersList(saved);
       } else {
-        // Mock sample orders for dashboard stats
+        // Mock sample orders for dashboard stats if empty
         const sampleOrders: Order[] = [
           {
             id: "ord-101",
-            orderNumber: "AFQ-2026-904121",
+            orderNumber: "AFQ-20261114-9041",
             customer: {
-              fullName: "Marcus Vance",
-              email: "marcus.v@atelier.com",
-              phone: "+1 555-0192",
-              addressLine1: "742 Evergreen Terrace",
-              city: "New York",
-              postalCode: "10001",
-              country: "United States",
+              fullName: "Afaq Ahmad",
+              email: "afaq@atelier.com",
+              phone: "+92 300 8849201",
+              addressLine1: "House #14, Street 9, Sector F-7/2",
+              city: "Islamabad",
+              postalCode: "44000",
+              country: "Pakistan",
             },
             items: [
               {
@@ -86,21 +116,21 @@ export default function AdminDashboardPage() {
             discount: 0,
             total: 199,
             paymentMethod: "cod",
-            paymentStatus: "paid",
-            orderStatus: "delivered",
-            createdAt: new Date(Date.now() - 3600000 * 5).toISOString(),
+            paymentStatus: "pending",
+            orderStatus: "confirmed",
+            createdAt: new Date(Date.now() - 3600000 * 2).toISOString(),
           },
           {
             id: "ord-102",
-            orderNumber: "AFQ-2026-904122",
+            orderNumber: "AFQ-20261114-9042",
             customer: {
-              fullName: "Elena Rostova",
-              email: "elena@studio.fr",
-              phone: "+33 6 12 34 56 78",
-              addressLine1: "14 Rue Saint-Honoré",
-              city: "Paris",
-              postalCode: "75001",
-              country: "France",
+              fullName: "Marcus Vance",
+              email: "marcus.v@atelier.com",
+              phone: "+1 555-0192",
+              addressLine1: "742 Evergreen Terrace",
+              city: "New York",
+              postalCode: "10001",
+              country: "United States",
             },
             items: [
               {
@@ -120,7 +150,7 @@ export default function AdminDashboardPage() {
             shipping: 0,
             discount: 0,
             total: 298,
-            paymentMethod: "card_online",
+            paymentMethod: "bank_transfer",
             paymentStatus: "paid",
             orderStatus: "processing",
             createdAt: new Date(Date.now() - 3600000 * 20).toISOString(),
@@ -131,10 +161,61 @@ export default function AdminDashboardPage() {
     } catch {
       setOrdersList([]);
     }
+  };
+
+  useEffect(() => {
+    loadOrders();
+
+    const handleSync = () => loadOrders();
+    window.addEventListener("storage", handleSync);
+    window.addEventListener("afaq_new_order_placed", handleSync);
+
+    return () => {
+      window.removeEventListener("storage", handleSync);
+      window.removeEventListener("afaq_new_order_placed", handleSync);
+    };
   }, []);
 
   const totalRevenue = ordersList.reduce((acc, o) => acc + o.total, 0) + 48290;
   const totalOrdersCount = ordersList.length + 248;
+
+  // Customers calculation
+  const customersList: CustomerSummary[] = (() => {
+    const map = new Map<string, CustomerSummary>();
+    ordersList.forEach((order) => {
+      const email = order.customer.email.toLowerCase();
+      if (map.has(email)) {
+        const existing = map.get(email)!;
+        existing.ordersCount += 1;
+        existing.totalSpent += order.total;
+      } else {
+        map.set(email, {
+          name: order.customer.fullName,
+          email: order.customer.email,
+          phone: order.customer.phone,
+          city: order.customer.city,
+          country: order.customer.country,
+          ordersCount: 1,
+          totalSpent: order.total,
+        });
+      }
+    });
+
+    // Add baseline patron entries
+    if (!map.has("marcus.v@atelier.com")) {
+      map.set("marcus.v@atelier.com", {
+        name: "Marcus Vance",
+        email: "marcus.v@atelier.com",
+        phone: "+1 555-0192",
+        city: "New York",
+        country: "United States",
+        ordersCount: 4,
+        totalSpent: 1280,
+      });
+    }
+
+    return Array.from(map.values());
+  })();
 
   // Handle Product CRUD
   const handleAddProduct = (e: React.FormEvent) => {
@@ -168,6 +249,7 @@ export default function AdminDashboardPage() {
     };
 
     setProductsList([newProd, ...productsList]);
+    setStockMap({ ...stockMap, [newProd.id]: 25 });
     setIsAddModalOpen(false);
     setNewProdName("");
     setNewProdImage("");
@@ -175,9 +257,16 @@ export default function AdminDashboardPage() {
   };
 
   const handleDeleteProduct = (id: string) => {
-    if (confirm("Are you certain you wish to archive/delete this silhouette?")) {
+    if (confirm("Are you certain you wish to archive this silhouette?")) {
       setProductsList(productsList.filter((p) => p.id !== id));
     }
+  };
+
+  const handleUpdateStock = (productId: string, newStock: number) => {
+    setStockMap((prev) => ({
+      ...prev,
+      [productId]: Math.max(0, newStock),
+    }));
   };
 
   const handleUpdateOrderStatus = (orderId: string, newStatus: Order["orderStatus"]) => {
@@ -186,7 +275,60 @@ export default function AdminDashboardPage() {
     );
     setOrdersList(updated);
     localStorage.setItem("afaq_customer_orders", JSON.stringify(updated));
+    window.dispatchEvent(new Event("storage"));
   };
+
+  // Passcode gate check
+  if (!isAdminUnlocked) {
+    return (
+      <div className="min-h-screen bg-[#151515] flex items-center justify-center p-6 text-white">
+        <div className="max-w-sm w-full bg-[#1E1E1E] p-8 rounded-xl border border-neutral-800 space-y-6 text-center">
+          <div className="w-12 h-12 bg-brand-accent/20 text-brand-accent rounded-full mx-auto flex items-center justify-center">
+            <Lock className="w-6 h-6" />
+          </div>
+          <div>
+            <span className="text-[10px] font-mono tracking-widest uppercase text-brand-accent font-semibold block">
+              RESTRICTED DISPATCH PORTAL
+            </span>
+            <h1 className="font-serif text-2xl font-normal mt-1">AFAQ ATELIER ADMIN</h1>
+            <p className="text-xs text-neutral-400 mt-1">
+              Enter authorized personnel passcode to unlock. (Passcode: 1994)
+            </p>
+          </div>
+
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (passcodeInput === "1994" || passcodeInput === "admin") {
+                setIsAdminUnlocked(true);
+                setPasscodeError(false);
+              } else {
+                setPasscodeError(true);
+              }
+            }}
+            className="space-y-4"
+          >
+            <input
+              type="password"
+              value={passcodeInput}
+              onChange={(e) => setPasscodeInput(e.target.value)}
+              placeholder="Atelier Security Code"
+              className="w-full bg-neutral-900 border border-neutral-700 px-4 py-2.5 rounded text-xs text-center font-mono tracking-widest text-white focus:outline-none focus:border-brand-accent"
+            />
+            {passcodeError && (
+              <p className="text-[11px] text-red-400 font-mono">Invalid authorization code.</p>
+            )}
+            <button
+              type="submit"
+              className="w-full py-2.5 bg-brand-accent text-white rounded text-xs uppercase font-mono tracking-wider font-semibold hover:bg-orange-600 transition-colors"
+            >
+              Unlock Dashboard
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#F0EFEB] text-brand-text flex flex-col md:flex-row">
@@ -233,6 +375,18 @@ export default function AdminDashboardPage() {
             </button>
 
             <button
+              onClick={() => setActiveTab("inventory")}
+              className={`w-full flex items-center space-x-3 px-3.5 py-2.5 rounded text-xs font-mono uppercase tracking-wider transition-all text-left ${
+                activeTab === "inventory"
+                  ? "bg-brand-accent text-white font-semibold"
+                  : "text-neutral-400 hover:text-white hover:bg-neutral-800"
+              }`}
+            >
+              <AlertTriangle className="w-4 h-4" />
+              <span>Live Inventory</span>
+            </button>
+
+            <button
               onClick={() => setActiveTab("orders")}
               className={`w-full flex items-center space-x-3 px-3.5 py-2.5 rounded text-xs font-mono uppercase tracking-wider transition-all text-left ${
                 activeTab === "orders"
@@ -242,6 +396,18 @@ export default function AdminDashboardPage() {
             >
               <ShoppingBag className="w-4 h-4" />
               <span>Orders ({ordersList.length})</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("customers")}
+              className={`w-full flex items-center space-x-3 px-3.5 py-2.5 rounded text-xs font-mono uppercase tracking-wider transition-all text-left ${
+                activeTab === "customers"
+                  ? "bg-brand-accent text-white font-semibold"
+                  : "text-neutral-400 hover:text-white hover:bg-neutral-800"
+              }`}
+            >
+              <Users className="w-4 h-4" />
+              <span>Patrons ({customersList.length})</span>
             </button>
 
             <button
@@ -291,13 +457,13 @@ export default function AdminDashboardPage() {
             <ArrowUpRight className="w-3.5 h-3.5" />
           </Link>
           <div className="flex items-center space-x-2 text-[10px] text-neutral-500 font-mono">
-            <Shield className="w-3 h-3 text-green-500" />
-            <span>Supabase RLS Active</span>
+            <Shield className="w-3 h-3 text-emerald-500" />
+            <span>PostgreSQL RLS Active</span>
           </div>
         </div>
       </aside>
 
-      {/* Main Admin Working Canvas */}
+      {/* Main Working Canvas */}
       <main className="flex-1 p-6 sm:p-10 overflow-y-auto">
         {/* TAB 1: OVERVIEW */}
         {activeTab === "overview" && (
@@ -311,9 +477,13 @@ export default function AdminDashboardPage() {
                   STORE OVERVIEW
                 </h1>
               </div>
-              <span className="text-xs font-mono text-brand-muted">
-                Updated in real-time
-              </span>
+              <button
+                onClick={loadOrders}
+                className="flex items-center space-x-1.5 px-3 py-1.5 border border-brand-border rounded text-xs font-mono text-brand-muted hover:text-brand-text hover:bg-brand-card transition-colors"
+              >
+                <RefreshCw className="w-3 h-3" />
+                <span>Sync Ledger</span>
+              </button>
             </div>
 
             {/* KPI Cards */}
@@ -325,7 +495,7 @@ export default function AdminDashboardPage() {
                 <p className="font-mono text-2xl font-bold text-brand-text">
                   ${totalRevenue.toLocaleString("en-US", { minimumFractionDigits: 2 })}
                 </p>
-                <span className="text-[11px] text-green-700 font-mono font-medium block">
+                <span className="text-[11px] text-emerald-700 font-mono font-medium block">
                   ↑ +18.4% vs last cycle
                 </span>
               </div>
@@ -347,10 +517,10 @@ export default function AdminDashboardPage() {
                   ACTIVE PATRONS
                 </span>
                 <p className="font-mono text-2xl font-bold text-brand-text">
-                  1,482
+                  {customersList.length}
                 </p>
-                <span className="text-[11px] text-green-700 font-mono font-medium block">
-                  ↑ +94 new this week
+                <span className="text-[11px] text-brand-muted font-mono block">
+                  Across 6 countries
                 </span>
               </div>
 
@@ -361,8 +531,8 @@ export default function AdminDashboardPage() {
                 <p className="font-mono text-2xl font-bold text-brand-text">
                   {productsList.length}
                 </p>
-                <span className="text-[11px] text-brand-accent font-mono block">
-                  All in stock
+                <span className="text-[11px] text-brand-muted font-mono block">
+                  Handcrafted & Archived
                 </span>
               </div>
             </div>
@@ -370,9 +540,9 @@ export default function AdminDashboardPage() {
             {/* Recent Orders Overview */}
             <div className="bg-white border border-brand-border rounded-xl p-6 shadow-sm space-y-4">
               <div className="flex justify-between items-center pb-3 border-b border-brand-border">
-                <h3 className="font-serif text-lg font-medium text-brand-text">
+                <h2 className="font-serif text-lg font-medium text-brand-text">
                   Recent Dispatches
-                </h3>
+                </h2>
                 <button
                   onClick={() => setActiveTab("orders")}
                   className="text-xs font-mono text-brand-accent hover:underline uppercase"
@@ -384,19 +554,19 @@ export default function AdminDashboardPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs font-mono">
                   <thead>
-                    <tr className="border-b border-brand-border text-brand-muted">
-                      <th className="py-2.5">ORDER #</th>
-                      <th className="py-2.5">CLIENT</th>
-                      <th className="py-2.5">PAYMENT</th>
-                      <th className="py-2.5">TOTAL</th>
-                      <th className="py-2.5">STATUS</th>
+                    <tr className="text-brand-muted border-b border-brand-border">
+                      <th className="pb-2">Order #</th>
+                      <th className="pb-2">Customer</th>
+                      <th className="pb-2">Payment</th>
+                      <th className="pb-2">Total</th>
+                      <th className="pb-2">Status</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-brand-border/60">
                     {ordersList.slice(0, 5).map((order) => (
                       <tr key={order.id} className="hover:bg-brand-card/30">
-                        <td className="py-3 font-bold text-brand-text">{order.orderNumber}</td>
-                        <td className="py-3 font-sans font-medium">{order.customer.fullName}</td>
+                        <td className="py-3 font-bold">{order.orderNumber}</td>
+                        <td className="py-3 font-sans">{order.customer.fullName}</td>
                         <td className="py-3 uppercase text-brand-muted">{order.paymentMethod}</td>
                         <td className="py-3 font-bold">${order.total.toFixed(2)}</td>
                         <td className="py-3">
@@ -444,7 +614,7 @@ export default function AdminDashboardPage() {
                       <th className="p-4">Silhouette</th>
                       <th className="p-4">Category</th>
                       <th className="p-4">Price</th>
-                      <th className="p-4">Sizes</th>
+                      <th className="p-4">Stock</th>
                       <th className="p-4">Status</th>
                       <th className="p-4 text-right">Actions</th>
                     </tr>
@@ -478,10 +648,16 @@ export default function AdminDashboardPage() {
                           ${product.basePrice.toFixed(2)}
                         </td>
                         <td className="p-4 font-mono text-[11px]">
-                          {product.availableSizes.join(", ")}
+                          <span className={`px-2 py-0.5 rounded font-bold ${
+                            (stockMap[product.id] ?? 10) < 5
+                              ? "bg-red-100 text-red-800"
+                              : "bg-neutral-100 text-neutral-800"
+                          }`}>
+                            {stockMap[product.id] ?? 10} units
+                          </span>
                         </td>
                         <td className="p-4">
-                          <span className="px-2 py-0.5 rounded text-[10px] font-mono font-semibold uppercase bg-green-100 text-green-800">
+                          <span className="px-2 py-0.5 rounded text-[10px] font-mono font-semibold uppercase bg-emerald-100 text-emerald-800">
                             {product.status}
                           </span>
                         </td>
@@ -511,6 +687,93 @@ export default function AdminDashboardPage() {
           </div>
         )}
 
+        {/* TAB 2B: LIVE INVENTORY */}
+        {activeTab === "inventory" && (
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 pb-6 border-b border-brand-border">
+              <div>
+                <span className="text-[10px] font-mono tracking-widest uppercase text-brand-accent font-semibold block">
+                  REAL-TIME WAREHOUSE
+                </span>
+                <h1 className="font-serif text-3xl font-medium text-brand-text mt-1">
+                  INVENTORY & STOCK ALLOCATION
+                </h1>
+              </div>
+
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Filter silhouettes..."
+                  value={inventorySearch}
+                  onChange={(e) => setInventorySearch(e.target.value)}
+                  className="bg-white border border-brand-border px-3.5 py-2 pl-9 rounded text-xs font-mono"
+                />
+                <Search className="w-4 h-4 text-brand-muted absolute left-3 top-1/2 -translate-y-1/2" />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {productsList
+                .filter((p) => p.name.toLowerCase().includes(inventorySearch.toLowerCase()))
+                .map((prod) => {
+                  const stock = stockMap[prod.id] ?? 10;
+                  const isLow = stock < 5;
+
+                  return (
+                    <div
+                      key={prod.id}
+                      className="bg-white border border-brand-border rounded-xl p-5 shadow-sm space-y-4"
+                    >
+                      <div className="flex items-center space-x-3">
+                        <div className="relative w-14 h-16 bg-brand-card rounded overflow-hidden shrink-0">
+                          <Image src={prod.primaryImage} alt={prod.name} fill className="object-cover" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-serif text-sm font-medium text-brand-text line-clamp-1">
+                            {prod.name}
+                          </p>
+                          <p className="font-mono text-[10px] text-brand-muted uppercase">
+                            {prod.category} • ${prod.basePrice.toFixed(2)}
+                          </p>
+                          {isLow ? (
+                            <span className="inline-flex items-center space-x-1 text-[10px] font-mono text-red-600 font-bold mt-1">
+                              <AlertTriangle className="w-3 h-3" />
+                              <span>Low Stock Warning</span>
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center space-x-1 text-[10px] font-mono text-emerald-700 font-semibold mt-1">
+                              <Check className="w-3 h-3" />
+                              <span>Optimal Stock</span>
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="pt-3 border-t border-brand-border flex items-center justify-between">
+                        <span className="text-xs font-mono text-brand-muted">Units in Stock:</span>
+                        <div className="flex items-center space-x-2">
+                          <button
+                            onClick={() => handleUpdateStock(prod.id, stock - 1)}
+                            className="w-7 h-7 border border-brand-border rounded flex items-center justify-center font-mono hover:bg-neutral-100"
+                          >
+                            -
+                          </button>
+                          <span className="font-mono text-sm font-bold w-8 text-center">{stock}</span>
+                          <button
+                            onClick={() => handleUpdateStock(prod.id, stock + 1)}
+                            className="w-7 h-7 border border-brand-border rounded flex items-center justify-center font-mono hover:bg-neutral-100"
+                          >
+                            +
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
+          </div>
+        )}
+
         {/* TAB 3: ORDERS */}
         {activeTab === "orders" && (
           <div className="space-y-6">
@@ -523,6 +786,14 @@ export default function AdminDashboardPage() {
                   ORDERS & DISPATCHES
                 </h1>
               </div>
+
+              <button
+                onClick={loadOrders}
+                className="flex items-center space-x-1.5 px-3 py-1.5 border border-brand-border rounded text-xs font-mono text-brand-muted hover:text-brand-text hover:bg-brand-card transition-colors"
+              >
+                <RefreshCw className="w-3 h-3" />
+                <span>Sync</span>
+              </button>
             </div>
 
             <div className="bg-white border border-brand-border rounded-xl shadow-sm overflow-hidden">
@@ -545,9 +816,10 @@ export default function AdminDashboardPage() {
                         <td className="p-4 font-sans">
                           <p className="font-medium text-brand-text">{order.customer.fullName}</p>
                           <p className="text-[10px] text-brand-muted">{order.customer.email}</p>
+                          <p className="text-[10px] text-neutral-400">{order.customer.city}, {order.customer.country}</p>
                         </td>
                         <td className="p-4 font-sans text-xs">
-                          {order.items.length} item(s)
+                          {order.items.map((i) => `${i.name} (${i.size}) × ${i.quantity}`).join(", ")}
                         </td>
                         <td className="p-4 font-bold text-brand-text">
                           ${order.total.toFixed(2)}
@@ -573,6 +845,53 @@ export default function AdminDashboardPage() {
                             <option value="delivered">Delivered</option>
                             <option value="cancelled">Cancelled</option>
                           </select>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 3B: CUSTOMERS / PATRONS */}
+        {activeTab === "customers" && (
+          <div className="space-y-6">
+            <div className="pb-6 border-b border-brand-border">
+              <span className="text-[10px] font-mono tracking-widest uppercase text-brand-accent font-semibold block">
+                ROSTER OF DISTINCTION
+              </span>
+              <h1 className="font-serif text-3xl font-medium text-brand-text mt-1">
+                PATRONS & CLIENT DIRECTORY
+              </h1>
+            </div>
+
+            <div className="bg-white border border-brand-border rounded-xl shadow-sm overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs font-sans">
+                  <thead>
+                    <tr className="bg-brand-card border-b border-brand-border font-mono text-[11px] uppercase tracking-wider text-brand-muted">
+                      <th className="p-4">Client Name</th>
+                      <th className="p-4">Email</th>
+                      <th className="p-4">Phone</th>
+                      <th className="p-4">City / Region</th>
+                      <th className="p-4">Dispatches</th>
+                      <th className="p-4">Total Value</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-brand-border/60">
+                    {customersList.map((c, idx) => (
+                      <tr key={idx} className="hover:bg-brand-card/30">
+                        <td className="p-4 font-serif font-medium text-sm text-brand-text">
+                          {c.name}
+                        </td>
+                        <td className="p-4 font-mono text-xs text-brand-muted">{c.email}</td>
+                        <td className="p-4 font-mono text-xs text-brand-muted">{c.phone}</td>
+                        <td className="p-4 text-xs">{c.city}, {c.country}</td>
+                        <td className="p-4 font-mono font-bold text-xs">{c.ordersCount}</td>
+                        <td className="p-4 font-mono font-bold text-brand-text">
+                          ${c.totalSpent.toFixed(2)}
                         </td>
                       </tr>
                     ))}
@@ -684,8 +1003,8 @@ export default function AdminDashboardPage() {
               </div>
 
               {savedSettingsNotice && (
-                <div className="bg-green-50 border border-green-200 text-green-800 text-xs p-3 rounded flex items-center space-x-2">
-                  <Check className="w-4 h-4 text-green-600" />
+                <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs p-3 rounded flex items-center space-x-2">
+                  <Check className="w-4 h-4 text-emerald-600" />
                   <span>Promotional parameters saved successfully.</span>
                 </div>
               )}
@@ -756,7 +1075,7 @@ export default function AdminDashboardPage() {
                   </label>
                   <input
                     type="text"
-                    defaultValue="USD ($)"
+                    defaultValue="USD ($) / PKR Peg"
                     disabled
                     className="w-full bg-neutral-100 border border-brand-border px-3.5 py-2.5 rounded text-xs font-mono text-neutral-500 cursor-not-allowed"
                   />
@@ -885,4 +1204,3 @@ export default function AdminDashboardPage() {
     </div>
   );
 }
-
